@@ -1,0 +1,15 @@
+<configuration debug="true" scan="true" scanPeriod="10 seconds">
+    <conversionRule conversionWord="colorLevel" converterClass="mayeul.logging.LogbackHighlightingOverride" />
+    <conversionRule conversionWord="colorLevel2" converterClass="mayeul.logging.LogbackHighlightingOverride2" />
+
+    <appender name="stderr" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.err</target>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %colorLevel(%-5level) %logger{36} - %colorLevel2(%msg%n)</pattern>
+        </encoder>
+    </appender>
+
+    <root level="debug">
+        <appender-ref ref="stderr" />
+    </root>
+</configuration>
