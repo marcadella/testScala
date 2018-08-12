@@ -3,6 +3,8 @@ package mayeul.pattern
 import org.scalatest.{FunSpec, Matchers}
 
 //Note: This is actually the same pattern as CompanionFinder
+//Note: It would work as well without trait B
+//Note: It is probably easier to just specialize the class using the builder...
 
 class GenericBuilderTest extends FunSpec with Matchers {
   describe(classOf[GenericBuilderTest].getName) {
