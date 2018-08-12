@@ -21,4 +21,6 @@ class HeartbeatChecker(
       lastHeartbeat,
       overTimeoutDo = uponTimeoutDo,
       autoHalt = true
-    )
+    ) {
+  override protected val prefix: String = "heartbeatChecker"
+}

@@ -13,6 +13,7 @@ case object Terminate extends Exception
   */
 class DoEvery(period: Duration, todo: => Unit, immediately: Boolean = true)
     extends HaltableRunner {
+  override protected val prefix: String = "doEvery"
   protected def logic(): Unit = {
     if (!immediately)
       Thread.sleep(period.toMillis)

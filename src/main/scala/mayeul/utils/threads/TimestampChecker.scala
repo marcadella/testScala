@@ -26,4 +26,6 @@ class TimestampChecker(
           underTimeoutDo
         }
       }
-    )
+    ) {
+  override protected val prefix: String = "timestampChecker"
+}

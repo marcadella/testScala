@@ -5,4 +5,6 @@ import mayeul.utils.threads.DoEvery
 import scala.concurrent.duration.Duration
 
 class HeartbeatEmitter(period: Duration, todo: => Unit)
-    extends DoEvery(period, todo)
+    extends DoEvery(period, todo) {
+  override protected val prefix: String = "heartbeatEmitter"
+}

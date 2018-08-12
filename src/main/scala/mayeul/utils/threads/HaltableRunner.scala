@@ -13,6 +13,7 @@ package mayeul.utils.threads
 abstract class HaltableRunner(autoStart: Boolean = true) {
   protected def logic(): Unit
   protected def cleanUp(): Unit = ()
+  protected val prefix: String = ""
 
   final protected val thread = new Thread(new Runnable {
     def run(): Unit = {
@@ -28,6 +29,9 @@ abstract class HaltableRunner(autoStart: Boolean = true) {
       }
     }
   })
+
+  if (prefix != "")
+    thread.setName(s"$prefix-${thread.getName}")
 
   final def start(): Unit = thread.start()
   final def halt(): Unit = thread.interrupt()
