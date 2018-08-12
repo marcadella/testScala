@@ -10,7 +10,7 @@ import scala.concurrent.duration.Duration
   * To terminate within `todo` (when it is not related to a halt()):
   *   throw Terminate
   */
-class HeartbeatChecker(
+class Watchdog(
     period: Duration,
     timeout: Duration,
     lastHeartbeat: => Long,
@@ -22,5 +22,5 @@ class HeartbeatChecker(
       overTimeoutDo = uponTimeoutDo,
       autoHalt = true
     ) {
-  override protected val prefix: String = "heartbeatChecker"
+  override protected val prefix: String = "watchdog"
 }
