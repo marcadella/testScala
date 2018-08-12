@@ -1,7 +1,6 @@
 package mayeul.utils.threads
 
 import scala.concurrent.duration.Duration
-import scala.util.control.Breaks._
 
 case object Terminate extends Exception
 
@@ -17,15 +16,13 @@ class DoEvery(period: Duration, todo: => Unit, immediately: Boolean = true)
   protected def logic(): Unit = {
     if (!immediately)
       Thread.sleep(period.toMillis)
-    breakable {
+    try {
       while (true) { //We don't need to check Thread.interrupted() here because Thread.sleep() does it for us.
-        try {
-          todo //If the halt is done here, the flag will be caught by the next Thread.sleep().
-        } catch {
-          case Terminate => break
-        }
+        todo //If the halt is done here, the flag will be caught by the next Thread.sleep().
         Thread.sleep(period.toMillis)
       }
+    } catch {
+      case Terminate => //We just exit the loop
     }
   }
 }
