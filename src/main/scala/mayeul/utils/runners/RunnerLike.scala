@@ -1,11 +1,11 @@
 package mayeul.utils.runners
 
 /**
-  * Executes logic `todo` asynchronously when start() is called.
+  * Executes some logic asynchronously when start() is called.
   * If `autoStart` is set to true, the execution starts straight after the instance creation.
   * `isCompleted` is true after the task execution completed.
   */
-abstract class RunnerLike(todo: => Unit) {
+trait RunnerLike {
   def isCompleted: Boolean
   protected def autoStart: Boolean
   def start(): Unit
