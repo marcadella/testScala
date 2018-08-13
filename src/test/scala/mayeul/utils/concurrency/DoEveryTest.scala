@@ -1,4 +1,4 @@
-package mayeul.utils.runners
+package mayeul.utils.concurrency
 
 import org.scalatest.{FunSpec, Matchers}
 
@@ -24,12 +24,10 @@ class DoEveryTest extends FunSpec with Matchers {
       w.await(timeout(600.millis)) //Used for thread sync
       Thread.sleep(100)
       synchronized { cr.isCancelled } should be(false)
-      synchronized { cr.isCompleted } should be(false)
       Thread.sleep(90)
       cr.cancel()
       synchronized { i } should be(4)
       synchronized { cr.isCancelled } should be(true)
-      synchronized { cr.isCompleted } should be(true)
     }
     it("should execute the todo 3 times and not be cancelled") {
       val w = new Waiter
@@ -48,7 +46,6 @@ class DoEveryTest extends FunSpec with Matchers {
       Thread.sleep(200)
       synchronized { i } should be(3)
       synchronized { cr.isCancelled } should be(false)
-      synchronized { cr.isCompleted } should be(true)
     }
   }
 }

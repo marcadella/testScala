@@ -1,6 +1,6 @@
-package mayeul.utils.runners.heartbeat
+package mayeul.utils.concurrency.heartbeat
 
-import mayeul.utils.runners.DoEvery
+import mayeul.utils.concurrency.DoEvery
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.Duration

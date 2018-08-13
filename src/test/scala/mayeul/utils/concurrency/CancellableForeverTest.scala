@@ -1,4 +1,4 @@
-package mayeul.utils.runners
+package mayeul.utils.concurrency
 
 import org.scalatest.{FunSpec, Matchers}
 import org.scalatest.concurrent.Waiters._
@@ -6,9 +6,9 @@ import org.scalatest.concurrent.Waiters._
 import scala.concurrent._
 import scala.concurrent.duration._
 
-class CancellableRunnerTest extends FunSpec with Matchers {
+class CancellableForeverTest extends FunSpec with Matchers {
   implicit val ec = ExecutionContext.global
-  describe(classOf[CancellableRunnerTest].getName) {
+  describe(classOf[CancellableForeverTest].getName) {
     it("should execute the todo") {
       val w = new Waiter
       var i = 0
@@ -20,7 +20,7 @@ class CancellableRunnerTest extends FunSpec with Matchers {
         w.dismiss()
       }
 
-      val cr = new CancellableRunner(todo(), true) {
+      val cr = new CancellableDaemon(todo(), ec, true) {
         override def cleanUp(): Unit = {
           synchronized { cleanupRan = true }
         }
@@ -28,7 +28,6 @@ class CancellableRunnerTest extends FunSpec with Matchers {
       w.await(timeout(600.millis))
       synchronized { i } should be(1)
       synchronized { cr.isCancelled } should be(false)
-      synchronized { cr.isCompleted } should be(true)
       synchronized { cleanupRan } should be(true)
     }
     it("should execute the 1st part of todo") {
@@ -42,7 +41,7 @@ class CancellableRunnerTest extends FunSpec with Matchers {
         i += 1
       }
 
-      val cr = new CancellableRunner(todo(), true) {
+      val cr = new CancellableDaemon(todo(), ec, true) {
         override def cleanUp(): Unit = {
           if (isCancelled)
             synchronized { cleanupRan = true }
@@ -52,7 +51,6 @@ class CancellableRunnerTest extends FunSpec with Matchers {
       cr.cancel()
       synchronized { i } should be(1)
       synchronized { cr.isCancelled } should be(true)
-      synchronized { cr.isCompleted } should be(true)
       synchronized { cleanupRan } should be(true)
     }
   }

@@ -1,6 +1,6 @@
 package mayeul
 
-import mayeul.utils.runners.{DoEvery, TimestampChecker}
+import mayeul.utils.concurrency.{DoEvery, TimestampChecker}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._

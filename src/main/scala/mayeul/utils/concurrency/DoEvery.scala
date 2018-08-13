@@ -1,4 +1,4 @@
-package mayeul.utils.runners
+package mayeul.utils.concurrency
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.Duration
@@ -13,7 +13,7 @@ case object Terminate extends Exception
   */
 class DoEvery(period: Duration, todo: => Unit, immediately: Boolean = true)(
     implicit ec: ExecutionContext)
-    extends CancellableRunner(
+    extends CancellableDaemon(
       {
         if (!immediately)
           Thread.sleep(period.toMillis)
@@ -26,5 +26,6 @@ class DoEvery(period: Duration, todo: => Unit, immediately: Boolean = true)(
           case Terminate => //We just exit the loop
         }
       },
+      ec,
       true
     )

@@ -1,6 +1,6 @@
-package mayeul.utils.runners
+package mayeul.utils.concurrency
 
-import mayeul.utils.runners.heartbeat.Watchdog
+import mayeul.utils.concurrency.heartbeat.Watchdog
 import org.scalatest.{FunSpec, Matchers}
 
 import scala.concurrent._
@@ -33,7 +33,6 @@ class WatchdogTest extends FunSpec with Matchers {
       Thread.sleep(800)
       synchronized { i } should be(1)
       synchronized { cr.isCancelled } should be(false)
-      synchronized { cr.isCompleted } should be(true)
     }
   }
 }

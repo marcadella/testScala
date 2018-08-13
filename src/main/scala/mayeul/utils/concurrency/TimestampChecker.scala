@@ -1,4 +1,4 @@
-package mayeul.utils.runners
+package mayeul.utils.concurrency
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.Duration
