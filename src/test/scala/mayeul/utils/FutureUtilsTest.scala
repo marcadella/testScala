@@ -1,7 +1,6 @@
-package mayeul
+package mayeul.utils
 
 import akka.actor.ActorSystem
-import mayeul.utils.FutureUtils
 import org.scalatest.{FunSpec, Matchers}
 
 import scala.concurrent.duration._
@@ -11,7 +10,7 @@ class FutureUtilsTest extends FunSpec with Matchers {
 
   implicit val system = ActorSystem()
 
-  describe("Future test") {
+  describe(classOf[FutureUtilsTest].getName) {
     implicit val ec = ExecutionContext.global
     case class MyException() extends Exception
     implicit class MutableInt(var value: Int) {

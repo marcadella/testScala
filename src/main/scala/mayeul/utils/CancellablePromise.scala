@@ -2,17 +2,22 @@ package mayeul.utils
 
 import java.util.concurrent.{Callable, FutureTask}
 
-import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.concurrent._
 import scala.util.Try
 
-class Cancellable[T](executionContext: ExecutionContext, todo: => T) {
+/**
+  * Creates a Future[T] (vie `future`) which can be cancelled with cancel().
+  * In case of cancellation, the Future is completed with a Failure(CancellationException).
+  */
+class CancellablePromise[T](todo: => T)(
+    implicit executionContext: ExecutionContext) {
   private val promise = Promise[T]()
 
   def future: Future[T] = promise.future
 
   private val ft: FutureTask[T] = new FutureTask[T](
     new Callable[T] {
-      override def call(): T = todo
+      override def call(): T = blocking { todo }
     }
   ) {
     override def done(): Unit = {
@@ -31,8 +36,8 @@ class Cancellable[T](executionContext: ExecutionContext, todo: => T) {
   executionContext.execute(ft)
 }
 
-object Cancellable {
+object CancellablePromise {
   def apply[T](todo: => T)(
-      implicit executionContext: ExecutionContext): Cancellable[T] =
-    new Cancellable[T](executionContext, todo)
+      implicit executionContext: ExecutionContext): CancellablePromise[T] =
+    new CancellablePromise[T](todo)
 }

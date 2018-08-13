@@ -1,26 +1,26 @@
-package mayeul.utils.threads.heartbeat
+package mayeul.utils.runners.heartbeat
 
-import mayeul.utils.threads.TimestampChecker
+import mayeul.utils.runners.TimestampChecker
 
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.Duration
 
 /**
   * Periodically checks a `timestamp` and executes once uponTimeoutDo() as soon as the timestamp timeouts.
   * The timestamp must come from a call to System.currentTimeMillis and its value is ignored when 0
-  * To terminate within `todo` (when it is not related to a halt()):
+  * To terminate internally (i.e. within `todo` and not with an external call to cancel()):
   *   throw Terminate
   */
 class Watchdog(
     period: Duration,
     timeout: Duration,
-    lastHeartbeat: => Long,
+    timestamp: => Long,
     uponTimeoutDo: => Unit
-) extends TimestampChecker(
+)(implicit ec: ExecutionContext)
+    extends TimestampChecker(
       period,
       timeout,
-      lastHeartbeat,
+      timestamp,
       overTimeoutDo = uponTimeoutDo,
-      autoHalt = true
-    ) {
-  override protected val prefix: String = "watchdog"
-}
+      autoCancel = true
+    )
