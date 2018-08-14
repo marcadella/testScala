@@ -39,20 +39,25 @@ class Runner[T](todo: => T)(implicit ec: ExecutionContext)
   //Executed once the task is completed (normally)
 }
 
+object Runner {
+  def apply[T](todo: => T)(implicit ec: ExecutionContext) =
+    new Runner[T](todo)(ec)
+}
+
 /**
   * Runs an action in parallel (using the ExecutionContext) which can be canceled.
   * `isCompleted` returns true when the task completed (normally or was cancelled).
   * `isCancelled` returns true when cancelled before the task completed normally.
   * The cleanUp() function is executed when the task completes (normally or via cancellation)
   */
-class CancellableRunner(todo: => Unit, ec: ExecutionContext)
-    extends Runner(todo)(ec)
+class CancellableRunner[T](todo: => T, ec: ExecutionContext)
+    extends Runner[T](todo)(ec)
     with CancellableLike {
   def cancel(): Unit = ft.cancel(true)
   final def isCancelled: Boolean = ft.isCancelled
 }
 
 object CancellableRunner {
-  def apply(todo: => Unit)(implicit ec: ExecutionContext) =
-    new CancellableRunner(todo, ec)
+  def apply[T](todo: => T)(implicit ec: ExecutionContext) =
+    new CancellableRunner[T](todo, ec)
 }

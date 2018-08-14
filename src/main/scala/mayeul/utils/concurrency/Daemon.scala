@@ -9,9 +9,8 @@ import scala.concurrent._
   * `isCompleted` returns true when the task completed.
   * The cleanUp() function is executed when the task completes
   */
-class Daemon(todo: => Unit,
-             ec: ExecutionContext,
-             protected val autoStart: Boolean = true)
+class Daemon(todo: => Unit, protected val autoStart: Boolean)(
+    implicit ec: ExecutionContext)
     extends DaemonLike {
   protected val ft: FutureTask[Unit] = new FutureTask[Unit](
     new Callable[Unit] {
@@ -32,15 +31,22 @@ class Daemon(todo: => Unit,
   initialize()
 }
 
+object Daemon {
+  def apply(todo: => Unit, autoStart: Boolean = true)(
+      implicit ec: ExecutionContext) =
+    new Daemon(todo, autoStart)(ec)
+}
+
 /**
   * Runs an action in parallel (using the ExecutionContext) which can be canceled.
   * `isCancelled` returns true when cancelled before the task completed normally.
   * The cleanUp() function is executed when the task completes via cancellation
   */
-class CancellableDaemon(todo: => Unit,
-                        ec: ExecutionContext,
-                        autoStart: Boolean = true)
-    extends Daemon(todo, ec, autoStart)
+class CancellableDaemon(
+    todo: => Unit,
+    autoStart: Boolean,
+    ec: ExecutionContext
+) extends Daemon(todo, autoStart)(ec)
     with CancellableLike {
   def cancel(): Unit = ft.cancel(true)
   final def isCancelled: Boolean = ft.isCancelled
@@ -49,5 +55,5 @@ class CancellableDaemon(todo: => Unit,
 object CancellableDaemon {
   def apply(todo: => Unit, autoStart: Boolean = true)(
       implicit ec: ExecutionContext) =
-    new CancellableDaemon(todo, ec, autoStart)
+    new CancellableDaemon(todo, autoStart, ec)
 }

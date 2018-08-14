@@ -6,9 +6,9 @@ import org.scalatest.concurrent.Waiters._
 import scala.concurrent._
 import scala.concurrent.duration._
 
-class CancellableForeverTest extends FunSpec with Matchers {
+class CancellableDaemonTest extends FunSpec with Matchers {
   implicit val ec = ExecutionContext.global
-  describe(classOf[CancellableForeverTest].getName) {
+  describe(classOf[CancellableDaemonTest].getName) {
     it("should execute the todo") {
       val w = new Waiter
       var i = 0
@@ -20,7 +20,7 @@ class CancellableForeverTest extends FunSpec with Matchers {
         w.dismiss()
       }
 
-      val cr = new CancellableDaemon(todo(), ec, true) {
+      val cr = new CancellableDaemon(todo(), true, ec) {
         override def cleanUp(): Unit = {
           synchronized { cleanupRan = true }
         }
@@ -41,7 +41,7 @@ class CancellableForeverTest extends FunSpec with Matchers {
         i += 1
       }
 
-      val cr = new CancellableDaemon(todo(), ec, true) {
+      val cr = new CancellableDaemon(todo(), true, ec) {
         override def cleanUp(): Unit = {
           if (isCancelled)
             synchronized { cleanupRan = true }

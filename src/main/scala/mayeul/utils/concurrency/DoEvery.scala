@@ -26,6 +26,6 @@ class DoEvery(period: Duration, todo: => Unit, immediately: Boolean = true)(
           case Terminate => //We just exit the loop
         }
       },
-      ec,
-      true
+      true,
+      ec
     )

@@ -18,7 +18,7 @@ class CancellableRunnerTest extends FunSpec with Matchers {
       })
       val f = c.execute()
       f onComplete {
-        case Success(_) =>
+        case Success(v) =>
           w { assert(false) }
           w.dismiss()
         case Failure(e: CancellationException) =>
@@ -53,6 +53,25 @@ class CancellableRunnerTest extends FunSpec with Matchers {
       w2.await(timeout(600.millis))
       Thread.sleep(200)
       c.cancel()
+      w.await(timeout(600.millis))
+    }
+    it("should return the right answer") {
+      val w = new Waiter
+      val c = CancellableRunner({
+        1
+      })
+      val f = c.execute()
+      f onComplete {
+        case Success(v) =>
+          w { v should be(1) }
+          w.dismiss()
+        case Failure(e: CancellationException) =>
+          w { assert(false) }
+          w.dismiss()
+        case Failure(_) =>
+          w { assert(false) }
+          w.dismiss()
+      }
       w.await(timeout(600.millis))
     }
   }
