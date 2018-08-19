@@ -92,10 +92,7 @@ trait FSM[S <: State] {
     _state
   }
 
-  final protected def transitionTo(
-      newState: S,
-      p: Boolean = false
-  ): Unit = {
+  final protected def transitionTo(newState: S): Unit = {
     val init = isInit
     val oldState = state
     if (oldState.canTransitionTo(newState)) {
