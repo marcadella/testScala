@@ -1,4 +1,4 @@
-package mayeul.pattern
+package mayeul.patterns
 
 import org.scalatest.{FunSpec, Matchers}
 
