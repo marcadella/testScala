@@ -1,6 +1,6 @@
 package mayeul.utils
 
-import scala.reflect.runtime.{universe => ru}
+//import scala.reflect.runtime.{universe => ru}
 
 case class FsmTransitionFaultException(from: State, to: State)
     extends RuntimeException(
@@ -17,6 +17,15 @@ trait State extends Product with Serializable {
   //This is a trick to get the class name without trailing '$'
 
   /**
+    * If ThisState.isSpecializationOf == Some(SuperState), ThisState is a specialization (or sub-state) of state SuperState.
+    * This means that: X.canTransitionTo(ThisState) if X.canTransitionTo(SuperState)
+    * The side effects defined in the 'onTransition' methods may or may not follow the same rule.
+    * Note: it is NOT true that ThisState.canTransitionTo(X) if SuperState.canTransitionTo(X)
+    * Note: Can be recursive
+    */
+  lazy val isSpecializationOf: Option[State] = None
+
+  /**
     * A state is terminal if it has no following states
     */
   final lazy val isTerminal: Boolean = nextStates.isEmpty
@@ -25,20 +34,24 @@ trait State extends Product with Serializable {
     * List of the valid next states
     */
   protected def nextStates: Seq[State]
-  final def canTransitionTo(nextState: State): Boolean =
-    nextStates contains nextState
+  final def canTransitionTo(nextState: State): Boolean = {
+    (nextState.isSpecializationOf match {
+      case Some(parent) if parent != nextState => //We remove infinite loop
+        canTransitionTo(parent)
+      case _ => false
+    }) || (nextStates contains nextState)
+  }
 }
 
 /**
   * To be extended as an object including all the state definitions as CASE OBJECT (extending trait State)
-  * In addition, copy paste the following line in the body:
-  * protected val tt = getTypeTag(this)
   */
-abstract class StateCompanion[S <: State: ru.TypeTag] {
-  protected def tt: ru.TypeTag[_] //Must be extended as: 'getTypeTag(this)'
-  protected def getTypeTag[T: ru.TypeTag](obj: T): ru.TypeTag[T] = ru.typeTag[T]
+abstract class StateCompanion[S <: State /*: ru.TypeTag*/ ] {
+  //protected def tt: ru.TypeTag[_] //Must be extended as: 'getTypeTag(this)'
+  //protected def getTypeTag[T: ru.TypeTag](obj: T): ru.TypeTag[T] = ru.typeTag[T]
 
-  final def states: Set[S] = {
+  //Reflexion is not always quick enough and returns empty Set =(
+  def states: Set[S] /* = {
     def isCaseObject(member: ru.Symbol): Boolean = {
       member.typeSignature match {
         case tpe if tpe <:< ru.typeOf[S] && tpe.getClass.isMemberClass =>
@@ -55,7 +68,7 @@ abstract class StateCompanion[S <: State: ru.TypeTag] {
         .instance
         .asInstanceOf[S]
     }).toSet
-  }
+  }*/
 
   final def fromString(s: String): S = {
     states find { state =>

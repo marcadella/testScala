@@ -11,11 +11,11 @@ class FsmTest extends FunSpec with Matchers {
     it("Should be at the initial state") {
       fsm.state should be(AbceState.A)
     }
-    it("Should be at B") {
+    it("Should  allow A -> B") {
       fsm.manualSwitching(AbceState.B)
       fsm.state should be(AbceState.B)
     }
-    it("should not allow transition from B to B") {
+    it("should not allow transition B -> B") {
       val test = Try {
         fsm.manualSwitching(AbceState.B)
         false
@@ -31,7 +31,7 @@ class FsmTest extends FunSpec with Matchers {
       i should be(1)
       fsm.state should be(AbceState.E)
     }
-    it("should not allow transition from E to B") {
+    it("should not allow transition E -> B") {
       val error = Try {
         fsm.manualSwitching(AbceState.B)
         false
@@ -76,7 +76,8 @@ abstract class AbceState extends State {
 }
 
 object AbceState extends StateCompanion[AbceState] {
-  protected val tt = getTypeTag(this)
+  //protected val tt = getTypeTag(this)
+
   case object A extends AbceState {
     val isMagic = false
     val nextStates = Seq(A, B, C, E)
@@ -102,4 +103,5 @@ object AbceState extends StateCompanion[AbceState] {
   }
 
   val initialState: AbceState = A
+  val states = Set(A, B, C, E)
 }
