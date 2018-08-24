@@ -27,5 +27,14 @@ class RegexTest extends FunSpec with Matchers {
           fileNameSuffix should be("r1")
       }
     }
+    it("should demonstrate the use of @") {
+      val shouldMatch = "bla_r1.fastq"
+      (shouldMatch match {
+        case fn @ regex(fileNamePrefix, fileNameSuffix) =>
+          fileNamePrefix should be("bla")
+          fileNameSuffix should be("r1")
+          fn.length //@ give you access to the string being pattern-matched as well
+      }) should be(12)
+    }
   }
 }
