@@ -15,7 +15,13 @@ class Daemon(todo: => Unit, protected val autoStart: Boolean)(
   protected val ft: FutureTask[Unit] = new FutureTask[Unit](
     new Callable[Unit] {
       override def call(): Unit = blocking {
-        todo
+        try {
+          todo
+        } catch {
+          case e: Exception =>
+            println(s"PRunner crashed", e)
+            throw e
+        }
         cleanUp()
       }
     }

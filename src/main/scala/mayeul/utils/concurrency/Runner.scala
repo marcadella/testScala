@@ -16,7 +16,15 @@ class Runner[T](todo: => T)(implicit ec: ExecutionContext)
 
   protected val ft: FutureTask[T] = new FutureTask[T](
     new Callable[T] {
-      override def call(): T = blocking { todo }
+      override def call(): T = blocking {
+        try {
+          todo
+        } catch {
+          case e: Exception =>
+            println(s"PRunner crashed", e)
+            throw e
+        }
+      }
     }
   ) {
     override def done()
