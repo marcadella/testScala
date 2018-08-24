@@ -1,9 +1,8 @@
 package mayeul
 
-import mayeul.utils.concurrency.{DoEvery, TimestampChecker}
-
-import scala.concurrent.ExecutionContext
-import scala.concurrent.duration._
+import scala.collection.generic.CanBuildFrom
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 object HelloWorld {
   def main(args: Array[String]): Unit = {
