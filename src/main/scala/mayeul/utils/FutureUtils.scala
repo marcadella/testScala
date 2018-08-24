@@ -8,6 +8,7 @@ import akka.pattern.after
 
 import scala.collection.generic.CanBuildFrom
 import scala.util.{Failure, Success, Try}
+import scala.language.higherKinds
 
 object FutureUtils {
 
