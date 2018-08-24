@@ -6,7 +6,58 @@ import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future, TimeoutException}
 import akka.pattern.after
 
+import scala.collection.generic.CanBuildFrom
+import scala.util.{Failure, Success, Try}
+
 object FutureUtils {
+
+  /**
+    * Convenience to convert Try to Future. Present in the scala library 2.12 as Future.fromTry
+    */
+  def fromTry[T](result: Try[T]): Future[T] = {
+    result match {
+      case Success(v) => Future.successful(v)
+      case Failure(e) => Future.failed(e)
+    }
+  }
+
+  /**
+    * Sequence a Map[A, Future[B]] -> Future[Map[A, B]]
+    */
+  def sequenceMap[A, B](m: Map[A, Future[B]])(
+      implicit ec: ExecutionContext): Future[Map[A, B]] = {
+    Future.sequence(m map {
+      case (a, fb) =>
+        fb map { b =>
+          (a, b)
+        }
+    }) map { _.toMap }
+  }
+
+  /**
+    * Same as Future.sequence but only keep the successful futures.
+    * If all the futures failed, then the result is Future(List())
+    */
+  def sequenceSuccessful[A, M[X] <: TraversableOnce[X]](in: M[Future[A]])(
+      implicit cbf: CanBuildFrom[M[Future[A]], A, M[A]],
+      executor: ExecutionContext): Future[M[A]] = {
+    in.foldLeft(Future.successful(cbf(in))) { (fr, fa) ⇒
+      (for (r ← fr; a ← fa) yield r += a) fallbackTo fr
+    } map (_.result())
+  }
+
+  /**
+    * Same as sequenceMap but only keep the successful futures.
+    */
+  def sequenceMapSuccessful[A, B](m: Map[A, Future[B]])(
+      implicit ec: ExecutionContext): Future[Map[A, B]] = {
+    sequenceSuccessful(m map {
+      case (a, fb) =>
+        fb map { b =>
+          (a, b)
+        }
+    }) map { _.toMap }
+  }
 
   /**
     * Add the concept of timeout to a future

@@ -5,13 +5,14 @@ import org.scalatest.{FunSpec, Matchers}
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.util.Success
 
 class FutureUtilsTest extends FunSpec with Matchers {
 
   implicit val system = ActorSystem()
+  implicit val ec = ExecutionContext.global
 
   describe(classOf[FutureUtilsTest].getName) {
-    implicit val ec = ExecutionContext.global
     case class MyException() extends Exception
     implicit class MutableInt(var value: Int) {
       def inc(): Unit = { value += 1 }
@@ -53,6 +54,12 @@ class FutureUtilsTest extends FunSpec with Matchers {
       it(s"res should be $recover") {
         assert(res === recover)
       }
+    }
+    describe("sequenceSuccessful should keep only successful futures") {
+      val lf = Seq(Future(1), Future(2 / 0), Future(3))
+      val fl = FutureUtils.sequenceSuccessful(lf)
+      Await.ready(fl, 500.millis)
+      fl.value should be(Some(Success(Seq(1, 3))))
     }
   }
 }
