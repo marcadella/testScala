@@ -26,6 +26,7 @@ class CancellableDaemonTest extends FunSpec with Matchers {
         }
       }
       w.await(timeout(600.millis))
+      Thread.sleep(200) //We leave enough time for the cleaning up to run
       synchronized { i } should be(1)
       synchronized { cr.isCancelled } should be(false)
       synchronized { cleanupRan } should be(true)
@@ -49,6 +50,7 @@ class CancellableDaemonTest extends FunSpec with Matchers {
       }
       w.await(timeout(600.millis))
       cr.cancel()
+      Thread.sleep(200) //We leave enough time for the cleaning up to run
       synchronized { i } should be(1)
       synchronized { cr.isCancelled } should be(true)
       synchronized { cleanupRan } should be(true)

@@ -7,12 +7,12 @@ import scala.concurrent._
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
-class CancellableRunnerTest extends FunSpec with Matchers {
+class CancellableParameterlessRunnerTest extends FunSpec with Matchers {
   implicit val ec = ExecutionContext.global
-  describe(classOf[CancellableRunnerTest].getName) {
+  describe(classOf[CancellableParameterlessRunnerTest].getName) {
     it("should be canceled") {
       val w = new Waiter
-      val c = CancellableRunner({
+      val c = CancellableParameterlessRunner({
         Thread.sleep(500)
         1 / 0
       })
@@ -34,7 +34,7 @@ class CancellableRunnerTest extends FunSpec with Matchers {
     it("should be failed") {
       val w = new Waiter
       val w2 = new Waiter
-      val c = CancellableRunner({
+      val c = CancellableParameterlessRunner({
         w2.dismiss()
         1 / 0
       })
@@ -46,7 +46,7 @@ class CancellableRunnerTest extends FunSpec with Matchers {
         case Failure(e: CancellationException) =>
           w { assert(false) }
           w.dismiss()
-        case Failure(_) =>
+        case Failure(e) =>
           w { assert(true) }
           w.dismiss()
       }
@@ -57,7 +57,7 @@ class CancellableRunnerTest extends FunSpec with Matchers {
     }
     it("should return the right answer") {
       val w = new Waiter
-      val c = CancellableRunner({
+      val c = CancellableParameterlessRunner({
         1
       })
       val f = c.execute()

@@ -33,10 +33,11 @@ class DoEveryTest extends FunSpec with Matchers {
       val w = new Waiter
       var i = 0
       def todo(): Unit = {
+        import scala.util.control.Breaks.{break => terminate}
         synchronized {
           i += 1
           if (i == 3)
-            throw Terminate
+            terminate()
         }
         w.dismiss()
       }

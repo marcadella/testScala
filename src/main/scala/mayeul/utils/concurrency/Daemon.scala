@@ -3,6 +3,7 @@ package mayeul.utils.concurrency
 import java.util.concurrent.{Callable, FutureTask}
 
 import scala.concurrent._
+import scala.util.Try
 
 /**
   * Runs an action in parallel (using the ExecutionContext).
@@ -15,14 +16,12 @@ class Daemon(todo: => Unit, protected val autoStart: Boolean)(
   protected val ft: FutureTask[Unit] = new FutureTask[Unit](
     new Callable[Unit] {
       override def call(): Unit = blocking {
-        try {
+        Try {
           todo
-        } catch {
-          case e: Exception =>
-            println(s"PRunner crashed", e)
-            throw e
+        } recover {
+          case e =>
+            println(s"Daemon crashed due to: ${e.getMessage}")
         }
-        cleanUp()
       }
     }
   ) {

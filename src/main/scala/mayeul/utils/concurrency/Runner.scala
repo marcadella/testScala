@@ -10,35 +10,35 @@ import scala.util.Try
   * `isCompleted` returns true when the task completed.
   * The cleanUp() function is executed when the task completes
   */
-class Runner[T](todo: => T)(implicit ec: ExecutionContext)
-    extends RunnerLike[T] {
-  private val promise = Promise[T]()
+class Runner[P, R](todo: P => R)(implicit ec: ExecutionContext)
+    extends RunnerLike[P, R] {
+  private val promise = Promise[R]()
+  private val param = Promise[P]()
 
-  protected val ft: FutureTask[T] = new FutureTask[T](
-    new Callable[T] {
-      override def call(): T = blocking {
-        try {
-          todo
-        } catch {
-          case e: Exception =>
-            println(s"PRunner crashed", e)
-            throw e
-        }
-      }
+  protected val ft: FutureTask[R] = new FutureTask[R](
+    new Callable[R] {
+      override def call(): R =
+        blocking {
+          //No need to try/catch because any Throwable will be caught by the Try block around 'get()'
+          todo(param.future.value.get.get)
+        } //In case of race condition, use Await
     }
   ) {
     override def done()
       : Unit = { //Executed when `todo` finishes normally or via cancellation
-      try {
-        promise.complete(Try(get()))
-      } catch {
-        case e: Exception =>
+      Try {
+        val res = get()
+        promise.success(res)
+      } recover {
+        case e: Throwable =>
           promise.failure(e)
       }
+      cleanUp()
     }
   }
 
-  def execute(): Future[T] = {
+  def execute(p: P): Future[R] = {
+    param.success(p)
     ec.execute(ft)
     promise.future
   }
@@ -48,8 +48,8 @@ class Runner[T](todo: => T)(implicit ec: ExecutionContext)
 }
 
 object Runner {
-  def apply[T](todo: => T)(implicit ec: ExecutionContext) =
-    new Runner[T](todo)(ec)
+  def apply[P, R](todo: P => R)(implicit ec: ExecutionContext) =
+    new Runner[P, R](todo)(ec)
 }
 
 /**
@@ -58,14 +58,14 @@ object Runner {
   * `isCancelled` returns true when cancelled before the task completed normally.
   * The cleanUp() function is executed when the task completes (normally or via cancellation)
   */
-class CancellableRunner[T](todo: => T, ec: ExecutionContext)
-    extends Runner[T](todo)(ec)
+class CancellableRunner[P, R](todo: P => R, ec: ExecutionContext)
+    extends Runner[P, R](todo)(ec)
     with CancellableLike {
   def cancel(): Unit = ft.cancel(true)
   final def isCancelled: Boolean = ft.isCancelled
 }
 
 object CancellableRunner {
-  def apply[T](todo: => T)(implicit ec: ExecutionContext) =
-    new CancellableRunner[T](todo, ec)
+  def apply[P, R](todo: P => R)(implicit ec: ExecutionContext) =
+    new CancellableRunner[P, R](todo, ec)
 }
