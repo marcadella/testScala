@@ -6,10 +6,9 @@ import scala.concurrent.{ExecutionContext, Future}
   * Same as Runner without parameter
   */
 class ParameterlessRunner[R](todo: => R)(implicit ec: ExecutionContext)
-    extends Runner[Unit, R]((Unit) => todo) {
-  override def execute(p: Unit = ()): Future[R] = {
-    super.execute(p)
-  }
+    extends Runner[Unit, R]((Unit) => todo)
+    with ParameterlessRunnerLike[R] {
+  def execute(): Future[R] = execute(())
 }
 
 object ParameterlessRunner {

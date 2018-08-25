@@ -10,3 +10,11 @@ trait RunnerLike[P, R] {
   def isCompleted: Boolean
   def execute(p: P): Future[R]
 }
+
+/**
+  * Same as RunnerLike but without parameter
+  */
+trait ParameterlessRunnerLike[R] {
+  def isCompleted: Boolean
+  def execute(): Future[R]
+}
