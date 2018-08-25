@@ -40,9 +40,9 @@ class FsmRecursiveTest extends FunSpec with Matchers {
   }
 }
 
-class MyFsm2() extends FSM[RecursiveState] {
+class MyFsm2() extends FSMImpl[RecursiveState] {
   protected val initialTransition: Boolean = false
-  protected val stateCompanion: StateCompanion[RecursiveState] = RecursiveState
+  val stateCompanion: StateCompanion[RecursiveState] = RecursiveState
 
   def manualSwitching(to: RecursiveState): Unit = transitionTo(to)
 }
@@ -50,29 +50,27 @@ class MyFsm2() extends FSM[RecursiveState] {
 abstract class RecursiveState extends State
 
 object RecursiveState extends StateCompanion[RecursiveState] {
-  //protected val tt = getTypeTag(this)
-
   case object A extends RecursiveState {
-    val nextStates = Seq(Y)
+    val nextStates: Set[State] = Set(Y)
   }
 
   case object W extends RecursiveState {
-    val nextStates = Seq(A)
+    val nextStates: Set[State] = Set(A)
     override lazy val isSpecializationOf = Some(X)
   }
 
   case object X extends RecursiveState {
-    val nextStates = Seq(A)
+    val nextStates: Set[State] = Set(A)
     override lazy val isSpecializationOf = Some(Y)
   }
 
   case object Y extends RecursiveState {
-    val nextStates = Seq(A)
+    val nextStates: Set[State] = Set(A)
     override lazy val isSpecializationOf = None
   }
 
   case object Z extends RecursiveState {
-    val nextStates = Seq(A)
+    val nextStates: Set[State] = Set(A)
   }
 
   val initialState: RecursiveState = A

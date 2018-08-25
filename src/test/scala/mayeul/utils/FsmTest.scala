@@ -58,13 +58,14 @@ class FsmTest extends FunSpec with Matchers {
 }
 
 class MyFsm(protected val initialTransition: Boolean, action: () => Unit)
-    extends FSM[AbceState] {
-  protected val stateCompanion: StateCompanion[AbceState] = AbceState
+    extends FSMImpl[AbceState] {
+  val stateCompanion: StateCompanion[AbceState] = AbceState
 
   def manualSwitching(to: AbceState): Unit = transitionTo(to)
   def isInMagicState: Boolean = state.isMagic
 
-  override protected def onTransitionTo(newState: AbceState): Unit =
+  override protected def onTransitionTo(newState: AbceState,
+                                        ctx: Any = null): Unit =
     newState match {
       case AbceState.B => action()
       case _           => ()
@@ -76,16 +77,14 @@ abstract class AbceState extends State {
 }
 
 object AbceState extends StateCompanion[AbceState] {
-  //protected val tt = getTypeTag(this)
-
   case object A extends AbceState {
     val isMagic = false
-    val nextStates = Seq(A, B, C, E)
+    val nextStates: Set[State] = Set(A, B, C, E)
   }
 
   case object B extends AbceState {
     val isMagic = false
-    val nextStates = Seq(
+    val nextStates: Set[State] = Set(
       A,
       C,
       E
@@ -94,12 +93,12 @@ object AbceState extends StateCompanion[AbceState] {
 
   case object C extends AbceState {
     val isMagic = false
-    val nextStates = Seq()
+    val nextStates: Set[State] = Set()
   }
 
   case object E extends AbceState {
     val isMagic = true
-    val nextStates = Seq()
+    val nextStates: Set[State] = Set()
   }
 
   val initialState: AbceState = A

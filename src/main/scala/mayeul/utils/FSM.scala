@@ -1,7 +1,5 @@
 package mayeul.utils
 
-//import scala.reflect.runtime.{universe => ru}
-
 case class FsmTransitionFaultException(from: State, to: State)
     extends RuntimeException(
       s"FSM transition fault: transition ${from.name} -> ${to.name} does not exist")
@@ -13,7 +11,7 @@ case class UnknownState(s: String)
   * State
   */
 trait State extends Product with Serializable {
-  final val name: String = productPrefix
+  lazy val name: String = productPrefix
   //This is a trick to get the class name without trailing '$'
 
   /**
@@ -33,7 +31,7 @@ trait State extends Product with Serializable {
   /**
     * List of the valid next states
     */
-  protected def nextStates: Seq[State]
+  protected def nextStates: Set[State]
   final def canTransitionTo(nextState: State): Boolean = {
     (nextState.isSpecializationOf match {
       case Some(parent) if parent != nextState => //We remove infinite loop
@@ -44,33 +42,13 @@ trait State extends Product with Serializable {
 }
 
 /**
-  * To be extended as an object including all the state definitions as CASE OBJECT (extending trait State)
+  * To be extended as an object including all the state definitions
   */
-abstract class StateCompanion[S <: State /*: ru.TypeTag*/ ] {
-  //protected def tt: ru.TypeTag[_] //Must be extended as: 'getTypeTag(this)'
-  //protected def getTypeTag[T: ru.TypeTag](obj: T): ru.TypeTag[T] = ru.typeTag[T]
+abstract class StateCompanion[S <: State] {
+  //Attempt to use Reflexion failed: not always quick enough -> returns empty Set =(
+  def states: Set[S]
 
-  //Reflexion is not always quick enough and returns empty Set =(
-  def states: Set[S] /* = {
-    def isCaseObject(member: ru.Symbol): Boolean = {
-      member.typeSignature match {
-        case tpe if tpe <:< ru.typeOf[S] && tpe.getClass.isMemberClass =>
-          true
-        case _ => false
-      }
-    }
-    (for {
-      member <- tt.tpe.members
-      if isCaseObject(member)
-    } yield {
-      reflect.runtime.currentMirror
-        .reflectModule(member.asModule)
-        .instance
-        .asInstanceOf[S]
-    }).toSet
-  }*/
-
-  final def fromString(s: String): S = {
+  def fromString(s: String): S = {
     states find { state =>
       state.name == s
     } getOrElse { throw UnknownState(s) }
@@ -85,14 +63,48 @@ abstract class StateCompanion[S <: State /*: ru.TypeTag*/ ] {
   * in the body of the extending class.
   */
 trait FSM[S <: State] {
+  def stateCompanion: StateCompanion[S]
+  def state: S
 
   /**
-    * If set to true, the transition from "undefined state" to initial state will be considered as a proper
+    * If set to false, the transition from "undefined state" to initial state will be considered as a proper
     * transition and side effects will be triggered.
-    * If set to false, no side effect will be triggered.
+    * If set to true, no side effect will be triggered.
     */
-  protected def initialTransition: Boolean
-  protected def stateCompanion: StateCompanion[S]
+  def quietInitialTransition: Boolean = true
+
+  /**
+    * If true, if allowed, the transition from one state to itself yield side effects are muted.
+    * Note: The self transition needs to be valid anyway (a state must appear in its nextState list).
+    */
+  def quietSelfTransition: Boolean = true
+
+  /**
+    * Transition to state 'newState' and trigger side effects.
+    * Object 'arg' can be used to provide needed context to side effect functions.
+    */
+  def transitionTo(newState: S, arg: Any): Unit
+
+  /**
+    * The 3 methods below trigger a side effect conditionally depending on the new state, a property of the new state or {old -> new}
+    * They are cumulative.
+    */
+  protected def onTransitionToTerminal(newState: S, ctx: Any): Unit =
+    if (newState.isTerminal) ()
+
+  protected def onTransitionTo(newState: S, ctx: Any): Unit = newState match {
+    case _ => ()
+  }
+
+  protected def onTransitionFromTo(currentState: S,
+                                   newState: S,
+                                   ctx: Any): Unit =
+    (currentState, newState) match {
+      case (_, _) => ()
+    }
+}
+
+trait FSMImpl[S <: State] extends FSM[S] {
   private var _state: S = _
 
   private def isInit: Boolean = synchronized {
@@ -105,37 +117,40 @@ trait FSM[S <: State] {
     _state
   }
 
-  final protected def transitionTo(newState: S): Unit = {
+  final def transitionTo(newState: S, ctx: Any = null): Unit = {
     val init = isInit
     val oldState = state
     if (oldState.canTransitionTo(newState)) {
-      synchronized {
-        _state = newState
+      if (oldState != newState) {
+        synchronized {
+          _state = newState
+        }
       }
-      if (!init || initialTransition) {
-        onTransitionToTerminal(newState)
-        onTransitionTo(newState)
-        onTransitionFromTo(oldState, newState)
+      if (oldState != newState || !quietSelfTransition) {
+        if (!init || quietInitialTransition) {
+          onTransitionToTerminal(newState, ctx)
+          onTransitionTo(newState, ctx)
+          onTransitionFromTo(oldState, newState, ctx)
+        }
       }
     } else {
       if (!oldState.isTerminal || !newState.isTerminal) //In the opposite case we just ignore as that can happen but is meaningless
         throw FsmTransitionFaultException(oldState, newState)
     }
   }
+}
 
-  /**
-    * The 3 methods below trigger a side effect conditionally depending on the new state, a property of the new state or {old -> new}
-    * They are cumulative.
-    */
-  protected def onTransitionToTerminal(newState: S): Unit =
-    if (newState.isTerminal) ()
+trait FSMWrapper[S <: State] extends FSM[S] {
+  protected def fsm: FSM[S]
 
-  protected def onTransitionTo(newState: S): Unit = newState match {
-    case _ => ()
-  }
+  override final val quietInitialTransition: Boolean =
+    fsm.quietInitialTransition
+  override final val quietSelfTransition: Boolean = fsm.quietSelfTransition
 
-  protected def onTransitionFromTo(currentState: S, newState: S): Unit =
-    (currentState, newState) match {
-      case (_, _) => ()
-    }
+  val stateCompanion: StateCompanion[S] = fsm.stateCompanion
+  def state: S = fsm.state
+  def transitionTo(newState: S, arg: Any = null): Unit =
+    fsm.transitionTo(newState, arg)
+
+  //Note, if you have special transitional side effects, pass them to the fsm as parameters
 }
