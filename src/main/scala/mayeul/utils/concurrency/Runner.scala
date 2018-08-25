@@ -6,7 +6,7 @@ import scala.concurrent._
 import scala.util.Try
 
 /**
-  * Runs an action in parallel (using the ExecutionContext).
+  * Run an action in parallel (using the ExecutionContext).
   * `isCompleted` returns true when the task completed.
   * The cleanUp() function is executed when the task completes
   */

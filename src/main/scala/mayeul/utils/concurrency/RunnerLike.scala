@@ -3,7 +3,7 @@ package mayeul.utils.concurrency
 import scala.concurrent.Future
 
 /**
-  * Executes some logic asynchronously when start() is called.
+  * Execute some logic asynchronously when `execute` is called.
   * `isCompleted` is true after the task execution completed.
   */
 trait RunnerLike[P, R] {

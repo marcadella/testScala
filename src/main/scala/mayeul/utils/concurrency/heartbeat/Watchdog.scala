@@ -8,8 +8,8 @@ import scala.concurrent.duration.Duration
 /**
   * Periodically checks a `timestamp` and executes once uponTimeoutDo() as soon as the timestamp timeouts.
   * The timestamp must come from a call to System.currentTimeMillis and its value is ignored when 0
-  * To terminate internally (i.e. within `todo` and not with an external call to cancel()):
-  *   throw Terminate
+  * import Breaks.{break => terminate}
+  *   Breaks.terminate()
   */
 class Watchdog(
     period: Duration,

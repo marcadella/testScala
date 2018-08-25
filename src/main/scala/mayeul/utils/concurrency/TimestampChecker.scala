@@ -5,7 +5,9 @@ import scala.concurrent.duration.Duration
 
 /**
   * Run periodically a `timestamp` check and executes underTimeoutDo() or overTimeoutDo() accordingly.
-  * The timestamp must come from a call to System.currentTimeMillis and its value is ignored when 0
+  * The timestamp must come from a call to System.currentTimeMillis and its value is ignored when 0.
+  * import Breaks.{break => terminate}
+  *   Breaks.terminate()
   */
 class TimestampChecker(
     period: Duration,
