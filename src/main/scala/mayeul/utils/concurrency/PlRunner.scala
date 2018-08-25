@@ -5,24 +5,24 @@ import scala.concurrent.{ExecutionContext, Future}
 /**
   * Same as Runner without parameter
   */
-class ParameterlessRunner[R](todo: => R)(implicit ec: ExecutionContext)
+class PlRunner[R](todo: => R)(implicit ec: ExecutionContext)
     extends Runner[Unit, R]((Unit) => todo)
-    with ParameterlessRunnerLike[R] {
+    with PlRunnerLike[R] {
   def execute(): Future[R] = execute(())
 }
 
-object ParameterlessRunner {
+object PlRunner {
   def apply[R](todo: => R)(implicit ec: ExecutionContext) =
-    new ParameterlessRunner[R](todo)(ec)
+    new PlRunner[R](todo)(ec)
 }
 
 /**
   * Same as CancellableRunner without parameter
   */
-class CancellableParameterlessRunner[R](todo: => R, ec: ExecutionContext)
+class CancellablePlRunner[R](todo: => R, ec: ExecutionContext)
     extends CancellableRunner[Unit, R]((Unit) => todo, ec)
 
-object CancellableParameterlessRunner {
+object CancellablePlRunner {
   def apply[R](todo: => R)(implicit ec: ExecutionContext) =
-    new CancellableParameterlessRunner[R](todo, ec)
+    new CancellablePlRunner[R](todo, ec)
 }
