@@ -4,7 +4,7 @@ case class FsmTransitionFaultException(from: State, to: State)
     extends RuntimeException(
       s"FSM transition fault: transition ${from.name} -> ${to.name} does not exist")
 
-case class UnknownState(s: String)
+case class UnknownStateException(s: String)
     extends RuntimeException(s"Unknown FSM state $s")
 
 /**
@@ -21,7 +21,7 @@ trait State extends Product with Serializable {
     * Note: it is NOT true that ThisState.canTransitionTo(X) if SuperState.canTransitionTo(X)
     * Note: Can be recursive
     */
-  lazy val isSpecializationOf: Option[State] = None
+  lazy val specializationOf: Option[State] = None
 
   /**
     * A state is terminal if it has no following states
@@ -32,8 +32,12 @@ trait State extends Product with Serializable {
     * List of the valid next states
     */
   protected def nextStates: Set[State]
+
+  /**
+    * True iff transition from this to nextState is valid
+    */
   final def canTransitionTo(nextState: State): Boolean = {
-    (nextState.isSpecializationOf match {
+    (nextState.specializationOf match {
       case Some(parent) if parent != nextState => //We remove infinite loop
         canTransitionTo(parent)
       case _ => false
@@ -44,14 +48,21 @@ trait State extends Product with Serializable {
 /**
   * To be extended as an object including all the state definitions
   */
-abstract class StateCompanion[S <: State] {
+abstract class StateCompanion[S <: State] extends Ordering[S] {
   //Attempt to use Reflexion failed: not always quick enough -> returns empty Set =(
-  def states: Set[S]
+  /**
+    * List of all the states.
+    * Note: We use a Seq to add ordering, so the order matters!
+    */
+  def states: Seq[S]
+
+  final def compare(x: S, y: S): Int =
+    states.indexOf(x) - states.indexOf(y)
 
   def fromString(s: String): S = {
     states find { state =>
       state.name == s
-    } getOrElse { throw UnknownState(s) }
+    } getOrElse { throw UnknownStateException(s) }
   }
   val initialState: S
 }
@@ -134,7 +145,8 @@ trait FSMImpl[S <: State] extends FSM[S] {
         }
       }
     } else {
-      if (!oldState.isTerminal || !newState.isTerminal) //In the opposite case we just ignore as that can happen but is meaningless
+      //If both oldState and newState are terminal, we just ignore it. Otherwise we throw an exception
+      if (!oldState.isTerminal || !newState.isTerminal)
         throw FsmTransitionFaultException(oldState, newState)
     }
   }

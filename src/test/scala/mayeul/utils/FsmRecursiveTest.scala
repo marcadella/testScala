@@ -56,17 +56,17 @@ object RecursiveState extends StateCompanion[RecursiveState] {
 
   case object W extends RecursiveState {
     val nextStates: Set[State] = Set(A)
-    override lazy val isSpecializationOf = Some(X)
+    override lazy val specializationOf = Some(X)
   }
 
   case object X extends RecursiveState {
     val nextStates: Set[State] = Set(A)
-    override lazy val isSpecializationOf = Some(Y)
+    override lazy val specializationOf = Some(Y)
   }
 
   case object Y extends RecursiveState {
     val nextStates: Set[State] = Set(A)
-    override lazy val isSpecializationOf = None
+    override lazy val specializationOf = None
   }
 
   case object Z extends RecursiveState {
@@ -74,5 +74,5 @@ object RecursiveState extends StateCompanion[RecursiveState] {
   }
 
   val initialState: RecursiveState = A
-  val states = Set(A, W, X, Y, Z)
+  val states = Seq(A, W, X, Y, Z)
 }

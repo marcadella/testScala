@@ -48,7 +48,7 @@ class FsmTest extends FunSpec with Matchers {
         AbceState.fromString("Blabla")
         false
       } match {
-        case Failure(UnknownState("Blabla")) =>
+        case Failure(UnknownStateException("Blabla")) =>
           true
         case _ => false
       }
@@ -101,6 +101,6 @@ object AbceState extends StateCompanion[AbceState] {
     val nextStates: Set[State] = Set()
   }
 
-  val initialState: AbceState = A
-  val states = Set(A, B, C, E)
+  lazy val initialState: AbceState = A
+  lazy val states = Seq(A, B, C, E)
 }
