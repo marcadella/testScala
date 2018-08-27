@@ -13,4 +13,5 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.1" % "test",
   "org.json4s" %% "json4s-jackson" % "3.3.0",
   "com.typesafe.play" %% "play-json" % "2.6.7",
-  "com.typesafe.akka" %% "akka-actor" % "2.3.14")
+  "com.typesafe.akka" %% "akka-actor" % "2.3.14",
+  "net.liftweb" %% "lift-json" % "2.6")
