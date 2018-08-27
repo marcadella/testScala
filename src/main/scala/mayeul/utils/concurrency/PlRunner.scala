@@ -6,7 +6,7 @@ import scala.concurrent.{ExecutionContext, Future}
   * Same as Runner without parameter
   */
 class PlRunner[R](todo: => R)(implicit ec: ExecutionContext)
-    extends Runner[Unit, R]((Unit) => todo)
+    extends Runner[Unit, R](Unit => todo)
     with PlRunnerLike[R] {
   def execute(): Future[R] = execute(())
 }
@@ -20,7 +20,7 @@ object PlRunner {
   * Same as CancellableRunner without parameter
   */
 class CancellablePlRunner[R](todo: => R, ec: ExecutionContext)
-    extends CancellableRunner[Unit, R]((Unit) => todo, ec)
+    extends CancellableRunner[Unit, R](Unit => todo, ec)
 
 object CancellablePlRunner {
   def apply[R](todo: => R)(implicit ec: ExecutionContext) =
