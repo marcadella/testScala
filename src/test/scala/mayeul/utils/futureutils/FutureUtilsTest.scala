@@ -1,6 +1,7 @@
-package mayeul.utils
+package mayeul.utils.futureutils
 
 import akka.actor.ActorSystem
+import mayeul.utils.FutureUtils
 import org.scalatest.{FunSpec, Matchers}
 
 import scala.concurrent.duration._

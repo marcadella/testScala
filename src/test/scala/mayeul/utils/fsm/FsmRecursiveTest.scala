@@ -1,5 +1,6 @@
-package mayeul.utils
+package mayeul.utils.fsm
 
+import mayeul.utils._
 import org.scalatest.{FunSpec, Matchers}
 
 import scala.util.{Failure, Try}

@@ -4,14 +4,12 @@ import org.scalatest.{FunSpec, Matchers}
 
 import play.api.libs.json._
 
-case class Child3(name: String, age: Int)
-
 class PlayJsonTest extends FunSpec with Matchers {
-  implicit val modelFormat = Json.format[Child3]
+  implicit val modelFormat = Json.format[ChildReduced]
   describe(classOf[PlayJsonTest].getName) {
-    val c = Child3("Mary", 5)
+    val c = ChildReduced("Mary", 5)
     val ser: String = """{"name":"Mary","age":5}"""
-    val des: Child3 = Json.fromJson[Child3](Json.parse(ser)).get
+    val des: ChildReduced = Json.fromJson[ChildReduced](Json.parse(ser)).get
     it("should be able to deserialize") {
       des should be(c)
     }
@@ -31,8 +29,8 @@ trait A {
   type T
 }
 
-case class B(ser: String)(implicit val k: Reads[Child3]) extends A {
-  type T = Child3
+case class B(ser: String)(implicit val k: Reads[ChildReduced]) extends A {
+  type T = ChildReduced
   val out = Json.fromJson[T](Json.parse(ser)).get
 }
 
@@ -43,8 +41,8 @@ trait AA {
     Json.fromJson[T](Json.parse(ser))(reads).get
 }
 
-case class BB(ser: String)(implicit val k: Reads[Child3]) extends AA {
-  type T = Child3
+case class BB(ser: String)(implicit val k: Reads[ChildReduced]) extends AA {
+  type T = ChildReduced
   val reads = k
   val out = outImpl(ser)
 }
@@ -54,6 +52,7 @@ abstract class AAA[T] {
     Json.fromJson[T](Json.parse(ser)).get
 }
 
-case class BBB(ser: String)(implicit val k: Reads[Child3]) extends AAA[Child3] {
+case class BBB(ser: String)(implicit val k: Reads[ChildReduced])
+    extends AAA[ChildReduced] {
   val out = outImpl(ser)
 }

@@ -1,4 +1,4 @@
-package mayeul.language
+package mayeul.language.regex
 
 import org.scalatest.{FunSpec, Matchers}
 

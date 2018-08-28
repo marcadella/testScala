@@ -6,8 +6,6 @@ import org.scalatest.{FunSpec, Matchers}
 
 //Same as Json4s but CANNOT serialize Map[A, B] if A != String...
 
-case class Child(name: String, age: Int, id: Option[Int], m: Map[Int, String])
-
 class LiftJsonTest extends FunSpec with Matchers {
   implicit val formats = Serialization.formats(NoTypeHints)
 
