@@ -30,7 +30,7 @@ trait FsmImpl[S <: FsmState] extends FSM[S] {
         }
       }
     } else {
-      if (!ignoreTerminalToTerminalTransition || !oldState.isTerminal || !newState.isTerminal)
+      if (!ignoreAllWhenTerminal || !oldState.isTerminal)
         throw FsmTransitionFaultException(oldState, newState)
     }
   }

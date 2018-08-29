@@ -38,9 +38,10 @@ trait FSM[S <: FsmState] {
   lazy val forceAllowSelfTransition: Boolean = true
 
   /**
-    * If set to true, terminal to terminal transition (which are by design never allowed) are silently ignored.
+    * If set to true, any transition is silently ignored (transitionTo has no effect) after a terminal state has been reached
+    * (which would have been by definition an invalid transition).
     */
-  lazy val ignoreTerminalToTerminalTransition: Boolean = true
+  lazy val ignoreAllWhenTerminal: Boolean = true
 
   /**
     * Transition to state 'newState' and trigger side effects.

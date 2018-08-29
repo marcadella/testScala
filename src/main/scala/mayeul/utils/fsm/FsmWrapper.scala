@@ -8,8 +8,8 @@ trait FsmWrapper[S <: FsmState] extends FSM[S] {
   override final lazy val quietSelfTransition: Boolean = fsm.quietSelfTransition
   override final lazy val forceAllowSelfTransition: Boolean =
     fsm.forceAllowSelfTransition
-  override final lazy val ignoreTerminalToTerminalTransition: Boolean =
-    fsm.ignoreTerminalToTerminalTransition
+  override final lazy val ignoreAllWhenTerminal: Boolean =
+    fsm.ignoreAllWhenTerminal
 
   final lazy val stateCompanion: FsmStateCompanion[S] = fsm.stateCompanion
   final def state: S = fsm.state

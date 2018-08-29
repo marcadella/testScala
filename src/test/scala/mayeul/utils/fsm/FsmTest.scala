@@ -62,6 +62,7 @@ class MyFsm(protected val initialTransition: Boolean, action: () => Unit)
   val stateCompanion: FsmStateCompanion[AbceState] = AbceState
 
   override lazy val forceAllowSelfTransition = false
+  override lazy val ignoreAllWhenTerminal = false
 
   def manualSwitching(to: AbceState): Unit = transitionTo(to)
   def isInMagicState: Boolean = state.isMagic
