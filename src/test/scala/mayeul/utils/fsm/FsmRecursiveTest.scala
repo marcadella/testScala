@@ -1,6 +1,5 @@
 package mayeul.utils.fsm
 
-import mayeul.utils._
 import org.scalatest.{FunSpec, Matchers}
 
 import scala.util.{Failure, Try}
@@ -41,37 +40,37 @@ class FsmRecursiveTest extends FunSpec with Matchers {
   }
 }
 
-class MyFsm2() extends FSMImpl[RecursiveState] {
+class MyFsm2() extends FsmImpl[RecursiveState] {
   protected val initialTransition: Boolean = false
-  val stateCompanion: StateCompanion[RecursiveState] = RecursiveState
+  val stateCompanion: FsmStateCompanion[RecursiveState] = RecursiveState
 
   def manualSwitching(to: RecursiveState): Unit = transitionTo(to)
 }
 
-abstract class RecursiveState extends State
+abstract class RecursiveState extends FsmState
 
-object RecursiveState extends StateCompanion[RecursiveState] {
+object RecursiveState extends FsmStateCompanion[RecursiveState] {
   case object A extends RecursiveState {
-    val nextStates: Set[State] = Set(Y)
+    val nextStates: Set[FsmState] = Set(Y)
   }
 
   case object W extends RecursiveState {
-    val nextStates: Set[State] = Set(A)
+    val nextStates: Set[FsmState] = Set(A)
     override lazy val specializationOf = Some(X)
   }
 
   case object X extends RecursiveState {
-    val nextStates: Set[State] = Set(A)
+    val nextStates: Set[FsmState] = Set(A)
     override lazy val specializationOf = Some(Y)
   }
 
   case object Y extends RecursiveState {
-    val nextStates: Set[State] = Set(A)
+    val nextStates: Set[FsmState] = Set(A)
     override lazy val specializationOf = None
   }
 
   case object Z extends RecursiveState {
-    val nextStates: Set[State] = Set(A)
+    val nextStates: Set[FsmState] = Set(A)
   }
 
   val initialState: RecursiveState = A

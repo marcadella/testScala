@@ -1,6 +1,5 @@
 package mayeul.utils.fsm
 
-import mayeul.utils._
 import org.scalatest.{FunSpec, Matchers}
 
 import scala.util.{Failure, Try}
@@ -59,8 +58,10 @@ class FsmTest extends FunSpec with Matchers {
 }
 
 class MyFsm(protected val initialTransition: Boolean, action: () => Unit)
-    extends FSMImpl[AbceState] {
-  val stateCompanion: StateCompanion[AbceState] = AbceState
+    extends FsmImpl[AbceState] {
+  val stateCompanion: FsmStateCompanion[AbceState] = AbceState
+
+  override lazy val forceAllowSelfTransition = false
 
   def manualSwitching(to: AbceState): Unit = transitionTo(to)
   def isInMagicState: Boolean = state.isMagic
@@ -73,19 +74,19 @@ class MyFsm(protected val initialTransition: Boolean, action: () => Unit)
     }
 }
 
-abstract class AbceState extends State {
+abstract class AbceState extends FsmState {
   def isMagic: Boolean
 }
 
-object AbceState extends StateCompanion[AbceState] {
+object AbceState extends FsmStateCompanion[AbceState] {
   case object A extends AbceState {
     val isMagic = false
-    val nextStates: Set[State] = Set(A, B, C, E)
+    val nextStates: Set[FsmState] = Set(A, B, C, E)
   }
 
   case object B extends AbceState {
     val isMagic = false
-    val nextStates: Set[State] = Set(
+    val nextStates: Set[FsmState] = Set(
       A,
       C,
       E
@@ -94,12 +95,12 @@ object AbceState extends StateCompanion[AbceState] {
 
   case object C extends AbceState {
     val isMagic = false
-    val nextStates: Set[State] = Set()
+    val nextStates: Set[FsmState] = Set()
   }
 
   case object E extends AbceState {
     val isMagic = true
-    val nextStates: Set[State] = Set()
+    val nextStates: Set[FsmState] = Set()
   }
 
   lazy val initialState: AbceState = A
