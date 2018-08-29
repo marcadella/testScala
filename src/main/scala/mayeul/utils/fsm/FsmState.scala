@@ -2,6 +2,7 @@ package mayeul.utils.fsm
 
 /**
   * FSM State
+  * Please, extend as an abstract class to prevent multiple inheritance
   */
 trait FsmState extends Product with Serializable {
   lazy val name: String = productPrefix
