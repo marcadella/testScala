@@ -207,7 +207,7 @@ object HttpClient extends Logging {
       log.warn(msg)
       throw new RuntimeException(msg)
     } else {
-      log.info(prettyPrintRequest(request))
+      log.info(s"Request: ${prettyPrintRequest(request)}")
       log.debug(s"Response: ${response.body}")
     }
   }
