@@ -3,6 +3,7 @@ package mayeul.utils.http
 import java.io.{FileOutputStream, InputStream}
 import java.nio.file.Path
 
+import mayeul.utils.StringUtils
 import mayeul.utils.json.Json
 import mayeul.utils.logging.Logging
 import org.apache.commons.io.IOUtils
@@ -205,10 +206,13 @@ object HttpClient extends Logging {
       val msg =
         s"Invalid response code (${HttpErrorCode(code)}) when $description${prettyPrintRequest(request)}"
       log.warn(msg)
+      log.warn(
+        s"Response: ${StringUtils.truncateString(response.body.toString)}")
       throw new RuntimeException(msg)
     } else {
       log.info(s"Request: ${prettyPrintRequest(request)}")
-      log.debug(s"Response: ${response.body}")
+      log.debug(
+        s"Response: ${StringUtils.truncateString(response.body.toString)}")
     }
   }
 
