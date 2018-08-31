@@ -2,6 +2,8 @@ package mayeul.utils.concurrency
 
 import java.util.concurrent.{Callable, FutureTask}
 
+import mayeul.utils.logging.Logging
+
 import scala.concurrent._
 import scala.util.Try
 
@@ -12,7 +14,8 @@ import scala.util.Try
   */
 class Daemon(todo: => Unit, protected val autoStart: Boolean)(
     implicit ec: ExecutionContext)
-    extends DaemonLike {
+    extends DaemonLike
+    with Logging {
   protected val ft: FutureTask[Unit] = new FutureTask[Unit](
     new Callable[Unit] {
       override def call(): Unit = blocking {
@@ -20,7 +23,7 @@ class Daemon(todo: => Unit, protected val autoStart: Boolean)(
           todo
         } recover {
           case e =>
-            println(s"Daemon crashed due to: ${e.getMessage}")
+            log.error(s"Daemon crashed due to: ${e.getMessage}")
         }
       }
     }
