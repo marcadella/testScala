@@ -30,6 +30,8 @@ Stream/Reader/Writer into a buffered Stream/Reader/Writer which buffers all read
 To convert an `Input/OutputStream` into a `Reader/Writer`, wrap it into a `InputStreamReader`/`OutputStreamWriter`.  
 To convert a `Reader/Writer` into an `Input/OutputStream`, wrap it into a `ReaderInputStream`/`WriterInputStream`.
 
+The way from one world to the other is just the use of an encoding/decoding (which can be set in the constructor).
+
 There is also a `PrintStream` which is a chimere: an OutputStream when using `write` and a BufferedWriter when using `print`.
 It is supposed to be a way to print streams of bytes as characters and with formatting but I find it confusing and I wonder
 if the flushing mechanism is not buggy...
@@ -41,3 +43,5 @@ To read/write a file use:
 `FileOutputStream` <> `FileWriter`
 
 (remember to wrap them in a buffered implementation)
+
+FileReader/Writer uses a default encoding/decoding. To use different ones you have to use a Input/OutputStreamReader/Writer on a FileInput/OutputStream.
