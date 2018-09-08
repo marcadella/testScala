@@ -33,8 +33,7 @@ To convert a `Reader/Writer` into an `Input/OutputStream`, wrap it into a `Reade
 The way from one world to the other is just the use of an encoding/decoding (which can be set in the constructor).
 
 There is also a `PrintStream` which is a chimere: an OutputStream when using `write` and a BufferedWriter when using `print`.
-It is supposed to be a way to print streams of bytes as characters and with formatting but I find it confusing and I wonder
-if the flushing mechanism is not buggy...
+It is supposed to be a way to print streams of bytes as characters and with formatting.
 
 ### Files
 
@@ -45,3 +44,7 @@ To read/write a file use:
 (remember to wrap them in a buffered implementation)
 
 FileReader/Writer uses a default encoding/decoding. To use different ones you have to use a Input/OutputStreamReader/Writer on a FileInput/OutputStream.
+
+### Debugging
+
+If all your data is not written, you probably have forgotten to close your OutputStream or writer!! Use the loan pattern!

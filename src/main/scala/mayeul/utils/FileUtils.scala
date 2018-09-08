@@ -189,6 +189,7 @@ object FileUtils {
   def streamToFile(path: Path, is: InputStream): Unit = {
     if (!isFile(path))
       createFile(path)
+    //We don't need to wrap with a BufferedOutputStream here since we copy only large chunks of data with IOUtils.copyLarge
     val os = new FileOutputStream(path.toAbsolutePath.toString)
     try {
       IOUtils.copyLarge(is, os)
