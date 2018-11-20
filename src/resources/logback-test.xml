@@ -21,12 +21,24 @@
     </appender>
 
     <!--Use grc tail -f log/... to display the log file with colors.-->
-    <appender name="file" class="ch.qos.logback.core.FileAppender">
-        <file>log/logfile-${bySecond}.log</file>
+    <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--<file>log/logfile-${bySecond}.log</file>-->
         <append>false</append>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %colorLevel(%-5level) %logger{100} - %colorLevel(%msg%n)</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %colorLevel(%-5level) %logger{38} - %colorLevel(%msg%n)</pattern>
         </encoder>
+        <filter class="mayeul.utils.logging.AppenderLevelFilter">
+            <logger>.</logger>
+            <level>INFO</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>log/${bySecond}/logFile.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+
+            <!-- keep 30 days' worth of history capped at 10GB total size -->
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
     </appender>
 
     <root level="debug">
