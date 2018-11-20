@@ -1,14 +1,36 @@
-<configuration debug="true" scan="true" scanPeriod="10 seconds">
+<configuration debug="false" scan="true" scanPeriod="10 seconds">
     <conversionRule conversionWord="colorLevel" converterClass="mayeul.utils.logging.ColorLevel" />
+
+    <timestamp key="bySecond" datePattern="yyyyMMdd'T'HHmmss"/>
 
     <appender name="stderr" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.err</target>
+        <!--Order the filters with the most specific first!!-->
+        <!--<filter class="no.uit.metapipe.common.logging.AppenderLevelFilter">
+          <logger>no.uit.metapipe.common.utils</logger>
+          <level>INFO</level>
+        </filter>-->
+        <!--The last filter is root-->
+        <filter class="mayeul.utils.logging.AppenderLevelFilter">
+            <logger>.</logger>
+            <level>WARN</level>
+        </filter>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %colorLevel(%-5level) %logger{52} - %colorLevel(%msg%n)</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %colorLevel(%-5level) %logger{100} - %colorLevel(%msg%n)</pattern>
+        </encoder>
+    </appender>
+
+    <!--Use grc tail -f log/... to display the log file with colors.-->
+    <appender name="file" class="ch.qos.logback.core.FileAppender">
+        <file>log/logfile-${bySecond}.log</file>
+        <append>false</append>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %colorLevel(%-5level) %logger{100} - %colorLevel(%msg%n)</pattern>
         </encoder>
     </appender>
 
     <root level="debug">
-        <appender-ref ref="stderr" />
+        <appender-ref ref="stderr"/>
+        <appender-ref ref="file"/>
     </root>
 </configuration>
