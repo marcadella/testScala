@@ -8,7 +8,7 @@ logBuffered in Test := false
 
 libraryDependencies ++= Seq(
   "com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2",
-  "ch.qos.logback" % "logback-classic" % "1.1.2",
+  "ch.qos.logback" % "logback-classic" % "1.2.3",
   "org.joda" % "joda-convert" % "1.8.1",
   "org.scalatest" %% "scalatest" % "3.0.1" % "test",
   "org.json4s" %% "json4s-jackson" % "3.3.0",
