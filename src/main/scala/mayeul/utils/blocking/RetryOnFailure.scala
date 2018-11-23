@@ -1,6 +1,6 @@
 package mayeul.utils.blocking
 
-import java.security.InvalidParameterException
+import mayeul.utils.logging.Logging
 
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
@@ -11,22 +11,21 @@ import scala.util.{Failure, Success, Try}
   * When maxRetries is reached, the latest attempt error is thrown
   * Setting maxRetries < 0 throws InvalidParameterException
   */
-class RetryOnFailure[A](action: => A, maxRetries: Int, period: Duration) {
+class RetryOnFailure[A](action: => A, maxRetries: Int, period: Duration)
+    extends Logging {
   private def start(): A = {
-    if (maxRetries >= 0) {
-      Try {
-        action
-      } match {
-        case Success(res) => res
-        case Failure(e) =>
-          if (maxRetries > 0) {
-            Thread.sleep(period.toMillis)
-            RetryOnFailure(action, maxRetries - 1, period)
-          } else
-            throw e
-      }
-    } else {
-      throw new InvalidParameterException("MaxRetry should be >= 0")
+    assert(maxRetries >= 0)
+    Try {
+      action
+    } match {
+      case Success(res) => res
+      case Failure(e) =>
+        if (maxRetries > 0) {
+          log.info(s"Retrying action due to:", e)
+          Thread.sleep(period.toMillis)
+          RetryOnFailure(action, maxRetries - 1, period)
+        } else
+          throw e
     }
   }
 }

@@ -1,5 +1,7 @@
 package mayeul.utils.blocking
 
+import mayeul.utils.logging.Logging
+
 import scala.concurrent.duration._
 
 case object MaxRetryException extends RuntimeException(s"Max retry reached")
@@ -9,11 +11,13 @@ case object MaxRetryException extends RuntimeException(s"Max retry reached")
   * If maxRetries == 0 the action is not retried
   * When maxRetries < 0, RuntimeException is thrown
   */
-class RetryUntilTrue(action: => Boolean, maxRetries: Int, period: Duration) {
+class RetryUntilTrue(action: => Boolean, maxRetries: Int, period: Duration)
+    extends Logging {
   if (maxRetries < 0)
     throw MaxRetryException
 
   if (!action) {
+    log.info(s"Retrying action")
     Thread.sleep(period.toMillis)
     new RetryUntilTrue(action, maxRetries - 1, period)
   }
