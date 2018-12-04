@@ -16,4 +16,5 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % "2.3.14",
   "net.liftweb" %% "lift-json" % "2.6",
   "org.scalaj" %% "scalaj-http" % "2.3.0",
-  "commons-io" % "commons-io" % "2.4")
+  "commons-io" % "commons-io" % "2.4",
+  "com.lihaoyi" %% "scalarx" % "0.3.2")

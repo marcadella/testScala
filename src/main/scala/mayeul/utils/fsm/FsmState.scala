@@ -4,9 +4,8 @@ package mayeul.utils.fsm
   * FSM State
   * Please, extend as an abstract class to prevent multiple inheritance
   */
-trait FsmState extends Product with Serializable {
+trait FsmState extends Product with Serializable { //This is a trick to get the class name without trailing '$'
   lazy val name: String = productPrefix
-  //This is a trick to get the class name without trailing '$'
 
   /**
     * If ThisState.isSpecializationOf == Some(SuperState), ThisState is a specialization (or sub-state) of state SuperState.
