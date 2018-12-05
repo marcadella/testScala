@@ -3,7 +3,6 @@ package mayeul.utils.reactiveFsm.impl
 import mayeul.utils.reactiveFsm.{DGState, DirectedGraphDecorator}
 import rx.Obs
 
-import scala.concurrent.{Future, Promise}
 import scala.util.Try
 
 /**
@@ -38,16 +37,4 @@ trait ReactDirectedFsmDecorator[S <: DGState]
       case e                                => throw e
     }
   }
-
-  private val promise = Promise[S]()
-
-  /**
-    * The future completes as soon as the FSM enters a terminal state (for the first time as it should be)
-    */
-  lazy val toFuture: Future[S] = promise.future
-
-  onTerminal(s =>
-    Try {
-      promise.success(s)
-  })
 }

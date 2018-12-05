@@ -8,7 +8,7 @@ import mayeul.utils.reactiveFsm.impl.{
 import org.scalatest.{FunSpec, Matchers}
 import rx._
 
-class ReactiveAggregateStateHolderTest extends FunSpec with Matchers {
+class ReactAggregatorTest extends FunSpec with Matchers {
   class ReactFsmInt0(implicit val ctx: Ctx.Owner) extends ReactFsm[Int] {
     protected val initialState = 0
   }
@@ -17,19 +17,17 @@ class ReactiveAggregateStateHolderTest extends FunSpec with Matchers {
     protected val initialState = 2
   }
 
-  class AggregateFsmInt(val dependencyList: Seq[ReactStateHolder[Int]])(
+  class Aggregator(val dependencyList: Seq[ReactStateHolder[Int]])(
       implicit val ctx: Ctx.Owner)
       extends ReactAggregator[Int] {
-    override def aggregate(s1: Rx[Int], s2: Rx[Int]): Rx[Int] = Rx {
-      s1() + s2()
-    }
+    override def aggregate(s1: Int, s2: Int): Int = s1 + s2
   }
   describe(classOf[ReactFsmTest].getName) {
     implicit val ctx: Ctx.Owner = Ctx.Owner.safe()
     var stateFollower = -1
     val fsm0 = new ReactFsmInt0()
     val fsm2 = new ReactFsmInt2()
-    val agg = new AggregateFsmInt(Seq(fsm0, fsm2))
+    val agg = new Aggregator(Seq(fsm0, fsm2))
     agg.onStateChange(x => stateFollower = x)
     it("Should be at the initial state") {
       agg.state should be(2)

@@ -14,9 +14,9 @@ trait ReactAggregator[S] extends ReactStateHolder[S] {
     * State aggregation function
     * Must be commutative and associative!
     */
-  def aggregate(s1: Rx[S], s2: Rx[S]): Rx[S]
+  def aggregate(s1: S, s2: S): S
 
   override val _state = dependencyList.map { _.stateRx }.reduce[Rx[S]] {
-    case (a: Rx[S], b: Rx[S]) => aggregate(a, b)
+    case (a: Rx[S], b: Rx[S]) => Rx { aggregate(a(), b()) }
   }
 }

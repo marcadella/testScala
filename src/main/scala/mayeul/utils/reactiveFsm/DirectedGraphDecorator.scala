@@ -1,6 +1,7 @@
 package mayeul.utils.reactiveFsm
 
-import scala.concurrent.Future
+import scala.concurrent.{Future, Promise}
+import scala.util.Try
 
 /**
   * DirectedGraphDecorator decorates StateHolderLike when the state S contains a list of allowed other states to transition to
@@ -27,8 +28,15 @@ trait DirectedGraphDecorator[S <: DGState, SideEffectHandle] {
   def onInvalidTransition(sideEffect: (S, S) => Unit): SideEffectHandle =
     onTransition(sideEffect, (oldS, newS) => !oldS.canTransitionTo(newS), true)
 
+  private val promise = Promise[S]()
+
   /**
-    * Returns a future that completes when a terminal state is reached
+    * The future completes as soon as the FSM enters a terminal state (for the first time as it should be)
     */
-  def toFuture: Future[S]
+  lazy val toFuture: Future[S] = promise.future
+
+  onTerminal(s =>
+    Try {
+      promise.success(s)
+  })
 }
