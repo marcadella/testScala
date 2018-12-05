@@ -6,7 +6,6 @@ import org.scalatest.{FunSpec, Matchers}
   * A val in a subclass is null/0 when used in the parent class
   * The rules of thumb are:
   *   - never have val on either side of an override unless the subclass defines the val in its constructor
-  *   - since def can be overridden by val it is still possible to make the mistake, so just go for lazy val all the time!
   *   - Note that it is not enough to have a lazy val in the subclass: it must not be defined with any val inside!
   */
 abstract class A {
