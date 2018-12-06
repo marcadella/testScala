@@ -8,7 +8,7 @@ import scala.util.Try
 /**
   * Same as ReactFsm but with a DGState
   */
-trait ReactDirectedFsmDecorator[S <: DGState]
+trait ReactDirectedFsm[S <: DGState]
     extends ReactFsm[S]
     with DirectedGraphDecorator[S, Obs] {
 
