@@ -18,23 +18,23 @@ class RetryUntilTrueTest extends FunSpec with Matchers {
     }
     it("should execute the action once") {
       val c = new C(-10)
-      RetryUntilTrue(c.decr(), 5, 100.millis)
+      RetryUntilTrue(c.decr(), 5, 100.millis, false)
       c.j should be(-11)
     }
     it("should execute the action until true") {
       val c = new C(2)
-      RetryUntilTrue(c.decr(), 5, 100.millis)
+      RetryUntilTrue(c.decr(), 5, 100.millis, false)
       c.j should be(0)
     }
     it("should execute the action until true (max tries)") {
       val c = new C(6)
-      RetryUntilTrue(c.decr(), 5, 100.millis)
+      RetryUntilTrue(c.decr(), 5, 100.millis, false)
       c.j should be(0)
     }
     it("should execute the action 6 times then fail") {
       val c = new C(10)
       Try {
-        RetryUntilTrue(c.decr(), 5, 100.millis)
+        RetryUntilTrue(c.decr(), 5, 100.millis, false)
       } match {
         case Success(_)                 => assert(false)
         case Failure(MaxRetryException) => c.j should be(4)
@@ -44,7 +44,7 @@ class RetryUntilTrueTest extends FunSpec with Matchers {
     it("should execute the action 1 times then fail") {
       val c = new C(10)
       Try {
-        RetryUntilTrue(c.decr(), 0, 100.millis)
+        RetryUntilTrue(c.decr(), 0, 100.millis, false)
       } match {
         case Success(_)                 => assert(false)
         case Failure(MaxRetryException) => c.j should be(9)

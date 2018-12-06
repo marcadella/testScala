@@ -11,7 +11,10 @@ case object MaxRetryException extends RuntimeException(s"Max retry reached")
   * If maxRetries == 0 the action is not retried
   * When maxRetries < 0, RuntimeException is thrown
   */
-class RetryUntilTrue(action: => Boolean, maxRetries: Int, period: Duration)
+class RetryUntilTrue(action: => Boolean,
+                     maxRetries: Int,
+                     period: Duration,
+                     verbose: Boolean)
     extends Logging {
   if (maxRetries < 0)
     throw MaxRetryException
@@ -19,13 +22,14 @@ class RetryUntilTrue(action: => Boolean, maxRetries: Int, period: Duration)
   if (!action) {
     log.info(s"Retrying action")
     Thread.sleep(period.toMillis)
-    new RetryUntilTrue(action, maxRetries - 1, period)
+    new RetryUntilTrue(action, maxRetries - 1, period, verbose)
   }
 }
 
 object RetryUntilTrue {
   def apply(action: => Boolean,
             maxRetries: Int = 10,
-            period: Duration = 10.seconds) =
-    new RetryUntilTrue(action, maxRetries, period)
+            period: Duration = 10.seconds,
+            verbose: Boolean = true) =
+    new RetryUntilTrue(action, maxRetries, period, verbose)
 }
