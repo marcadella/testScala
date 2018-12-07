@@ -42,11 +42,14 @@ trait ReactStateHolder[S] extends StateHolderLike[S, Obs] {
   final def onStateChange(sideEffect: S => Unit,
                           withFilter: S => Boolean = _ => true,
                           skipInitial: Boolean = false): Obs = {
-    val filtered = _state.filter(withFilter)
-    if (skipInitial)
-      filtered.triggerLater(sideEffect(_state.now))
+    def condAction(s: S): Unit = {
+      if (withFilter(s))
+        sideEffect(s)
+    }
+    if (skipInitial || !withFilter(_state.now))
+      _state.triggerLater(condAction(_state.now))
     else
-      filtered.trigger(sideEffect(_state.now))
+      _state.trigger(condAction(_state.now))
   }
 
   /**
@@ -60,12 +63,20 @@ trait ReactStateHolder[S] extends StateHolderLike[S, Obs] {
   final def onTransition(sideEffect: (S, S) => Unit,
                          withFilter: (S, S) => Boolean = (_, _) => true,
                          skipInitial: Boolean = false): Obs = {
-    val filtered = _transition
-      .filter(x => withFilter(x._1, x._2))
+    def condAction(s1: S, s2: S): Unit = {
+      if (withFilter(s1, s2))
+        sideEffect(s1, s2)
+    }
     if (skipInitial)
-      filtered.triggerLater(sideEffect(_transition.now._1, _transition.now._2))
+      _transition.triggerLater({
+        val tr = _transition.now
+        condAction(tr._1, tr._2)
+      })
     else
-      filtered.trigger(sideEffect(_transition.now._1, _transition.now._2))
+      _transition.trigger({
+        val tr = _transition.now
+        condAction(tr._1, tr._2)
+      })
   }
 
   /**
