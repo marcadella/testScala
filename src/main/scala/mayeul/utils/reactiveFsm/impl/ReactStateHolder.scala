@@ -46,7 +46,7 @@ trait ReactStateHolder[S] extends StateHolderLike[S, Obs] {
       if (withFilter(s))
         sideEffect(s)
     }
-    if (skipInitial || !withFilter(_state.now))
+    if (skipInitial)
       _state.triggerLater(condAction(_state.now))
     else
       _state.trigger(condAction(_state.now))
