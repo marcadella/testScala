@@ -29,12 +29,13 @@ trait ReactDirectedFsm[S <: DGState]
   /**
     * Try transition to
     */
-  def tryTransitionTo(newState: S, recover: (S, S) => Unit): Unit = {
+  def tryTransitionTo(newState: S): Unit = {
     Try {
       transitionTo(newState)
     } recover {
-      case WrongTransitionException(s1, s2) => recover(s1, s2)
-      case e                                => throw e
+      case WrongTransitionException(s1, s2) =>
+        log.warn(s"Could not perform transition ${s1.name} -> ${s2.name}")
+      case e => throw e
     }
   }
 }

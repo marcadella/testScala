@@ -1,16 +1,21 @@
 package mayeul.utils.reactiveFsm.impl
 
+import mayeul.utils.logging.Logging
 import mayeul.utils.reactiveFsm.StateHolderLike
 import rx.{Ctx, Obs, Rx}
+
+import scala.util.Try
 
 /**
   * An implementation of a reactive state holder using ScalaRx
   * Reactive state holder means that one can register side effects when the state changes
   * Note that in this implementation self-transitions are allowed and do not trigger side effects.
   *
+  * Danger: Never throw an error from trigger() or triggerLater() (but it is fine from an Rx)
+  *
   * @tparam S
   */
-trait ReactStateHolder[S] extends StateHolderLike[S, Obs] {
+trait ReactStateHolder[S] extends StateHolderLike[S, Obs] with Logging {
   implicit val ctx: Ctx.Owner //Use Ctx.Owner.safe()
 
   protected def _state: Rx[S]
@@ -22,7 +27,8 @@ trait ReactStateHolder[S] extends StateHolderLike[S, Obs] {
 
   /**
     * State handle to create Rx.
-    * Please do not use to register side effects. For that use the onXXX methods
+    * Danger: do not use directly to register side effects with trigger() and triggerLater()! For that use the onXXX methods
+    * Reason: in case the side effect throws an error it will close the handle!
     */
   final lazy val stateRx = _state
 
@@ -44,7 +50,11 @@ trait ReactStateHolder[S] extends StateHolderLike[S, Obs] {
                           skipInitial: Boolean = false): Obs = {
     def condAction(s: S): Unit = {
       if (withFilter(s))
-        sideEffect(s)
+        Try {
+          sideEffect(s)
+        } recover {
+          case e => log.warn("Error thrown in onChangeState!", e)
+        }
     }
     if (skipInitial)
       _state.triggerLater(condAction(_state.now))
@@ -65,7 +75,11 @@ trait ReactStateHolder[S] extends StateHolderLike[S, Obs] {
                          skipInitial: Boolean = false): Obs = {
     def condAction(s1: S, s2: S): Unit = {
       if (withFilter(s1, s2))
-        sideEffect(s1, s2)
+        Try {
+          sideEffect(s1, s2)
+        } recover {
+          case e => log.warn("Error thrown in onTransition!", e)
+        }
     }
     if (skipInitial)
       _transition.triggerLater({
