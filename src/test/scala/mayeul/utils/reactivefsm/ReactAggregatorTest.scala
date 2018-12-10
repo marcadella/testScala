@@ -45,7 +45,7 @@ class ReactAggregatorTest extends FunSpec with Matchers {
     }
     it(
       "Should still be at the state 11 (no update for fsm2) then 9 (fsn2 is still taken into account for the computation)") {
-      fsm2.unregisterAll()
+      fsm2.stateRx.kill()
       fsm2.transitionTo(7)
       agg.state should be(11)
       stateFollower should be(11)

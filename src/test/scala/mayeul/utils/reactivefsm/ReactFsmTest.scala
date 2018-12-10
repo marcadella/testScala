@@ -13,7 +13,7 @@ class ReactFsmTest extends FunSpec with Matchers {
     var stateFollower = -1
     var transitionFollower = -1
     val fsm = new ReactFsmInt2()
-    fsm.onStateChange(x => stateFollower = x)
+    val obs = fsm.onStateChange(x => stateFollower = x)
     it("Should be at the initial state") {
       fsm.state should be(2)
       stateFollower should be(2)
@@ -24,7 +24,8 @@ class ReactFsmTest extends FunSpec with Matchers {
       stateFollower should be(5)
     }
     it("Should be at the state 6 but the follower should still be at stage 5") {
-      fsm.unregisterAll()
+      //fsm.unregisterAll()
+      obs.kill()
       fsm.transitionTo(6)
       fsm.state should be(6)
       stateFollower should be(5)

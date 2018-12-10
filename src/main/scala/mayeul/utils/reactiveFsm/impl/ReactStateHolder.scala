@@ -96,5 +96,6 @@ trait ReactStateHolder[S] extends StateHolderLike[S, Obs] with Logging {
   /**
     * Unregisters any previously registered side effect
     */
-  final def unregisterAll(): Unit = _state.kill()
+  //Does not work
+  //final def unregisterAll(): Unit = _state.kill()
 }
