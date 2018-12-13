@@ -62,5 +62,17 @@ class FutureUtilsTest extends FunSpec with Matchers {
       Await.ready(fl, 500.millis)
       fl.value should be(Some(Success(Seq(1, 3))))
     }
+    describe("should retry the future 3 times") {
+      var x = 2
+      def f() = Future {
+        x = x - 1
+        if (x >= 0) {
+          throw new Exception("blabla")
+        } else
+          x
+      }
+      Await.result(FutureUtils.retry(f(), period = 100.millis, verbose = false),
+                   1.second) should be(-1)
+    }
   }
 }

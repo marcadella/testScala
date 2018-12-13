@@ -1,14 +1,19 @@
 # ExecutionContext
 
+Cf https://docs.scala-lang.org/overviews/core/futures.html#blocking-inside-a-future
+
 implicit val ec = ExecutionContext.global
  or
  import scala.concurrent.ExecutionContext.Implicits.global
  -> ForkJoinPool with the number of threads of your processor.
-ForkJoinPool is good for mainly non-blocking code (otherwise too many threads might be generated)
+ 
+Cf https://docs.oracle.com/javase/tutorial/essential/concurrency/pools.html
+ForkJoinPool is good for mainly non-blocking code (https://docs.oracle.com/javase/tutorial/essential/concurrency/forkjoin.html)
 If mostly blocking, newFixedThreadPool is a good choice.
 newCachedThreadPool is somewhat in between
-Use Future{blocking{}} to generate more threads -> But it only works for the global execution context (but does not harm and could be useful for documentation purpose)
+Use Future{blocking{}} to generate more threads -> But it does not work for all EC (such as newFixedThreadPool for example).
 import scala.concurrent.blocking
+blocking {} tells the thread manager that this thread can be stolen by another needy thread since it is likely to just be waiting on some I/O anyway.
 
 Note: 1 thread = 1MB RAM
 
@@ -18,7 +23,7 @@ If you just need to change the thread pool count, just use the global executor a
 
 -Dscala.concurrent.context.numThreads=8 -Dscala.concurrent.context.maxThreads=8
 
-In build.sbt:
+In build.sbt: (https://stackoverflow.com/a/47172931/4965515)
 fork in run := true
 
 javaOptions += "-Dscala.concurrent.context.maxThreads=1"

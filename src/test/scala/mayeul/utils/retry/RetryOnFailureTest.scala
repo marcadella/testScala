@@ -1,4 +1,4 @@
-package mayeul.utils.blocking
+package mayeul.utils.retry
 
 import org.scalatest.{FunSpec, Matchers}
 

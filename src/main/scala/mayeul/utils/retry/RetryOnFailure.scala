@@ -1,9 +1,10 @@
-package mayeul.utils.blocking
+package mayeul.utils.retry
 
 import mayeul.utils.logging.Logging
 
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
+import scala.concurrent.blocking
 
 /**
   * Performs an action and retries up to maxRetries times in case of failure (so in total the action will be attempted maxRetries + 1)
@@ -26,8 +27,10 @@ class RetryOnFailure[A](action: => A,
         if (maxRetries > 0) {
           if (verbose)
             log.info(s"Retrying action due to:", e)
-          Thread.sleep(period.toMillis)
-          RetryOnFailure(action, maxRetries - 1, period, verbose)
+          blocking {
+            Thread.sleep(period.toMillis)
+            RetryOnFailure(action, maxRetries - 1, period, verbose)
+          }
         } else
           throw e
     }
