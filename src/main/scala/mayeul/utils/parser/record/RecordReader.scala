@@ -16,7 +16,7 @@ abstract class RecordReader[T](in: BufferedReader) extends FilterReader(in) {
     * Reads the next entry
     * Returns None if EOF
     */
-  protected[record] def readEntry(): Option[T]
+  def readEntry(): Option[T]
 
   protected[record] def readLineImpl(): Option[String] = {
     Option(in.readLine())

@@ -9,5 +9,5 @@ class LineWriter(out: BufferedWriter) extends RecordWriter[String](out) {
 }
 
 class LineReader(in: BufferedReader) extends RecordReader[String](in) {
-  override def readEntry(): Option[String] = Option(in.readLine())
+  override def readEntry(): Option[String] = readLine()
 }
