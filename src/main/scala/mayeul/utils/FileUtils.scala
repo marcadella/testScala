@@ -119,14 +119,18 @@ object FileUtils extends Logging {
   }
 
   /**
+    * Copy of files or non-empty directory
+    * * 'to' is the path INCLUDING the file/directory re-name
     * Destination is created if does not exist
+    * Throw FileAlreadyExistsException if destination already exists
     * Are you sure a symLink or hardLink would not be more efficient??
     */
-  def fullCopy(from: Path, to: Path): Unit = {
-    if (from != to) {
-      if (!isFile(to))
-        createFile(to)
-      streamToFile(to, new FileInputStream(from.toAbsolutePath.toString))
+  def hardCopy(from: Path, to: Path): Unit = {
+    if (FileUtils.isDirectory(from))
+      ApacheFileUtils.copyDirectory(from.toFile, to.toFile)
+    else {
+      FileUtils.createParentDirectories(to)
+      Files.copy(from, to)
     }
   }
 
@@ -134,7 +138,13 @@ object FileUtils extends Logging {
     hardLink(from, to)
   }
 
-  def move(from: Path, to: Path): Unit = {
+  /**
+    * 'to' is the path INCLUDING the file/directory re-name
+    * Creates parent directories if needed
+    * Note: Works with non-empty directories as well
+    */
+  def moveAndRename(from: Path, to: Path): Unit = {
+    createParentDirectories(to)
     Files.move(from, to)
   }
 
