@@ -16,6 +16,7 @@ trait DirectedGraphDecorator[S <: DGState, SideEffectHandle] {
 
   /**
     * Registers side effect when reaching a terminal state
+    * Attention: since we cannot guaranty that the callback will be performed before GC. Use finish With if you want to be sure the callback is executed
     */
   final def onTerminalState(sideEffect: S => Unit,
                             skipInitial: Boolean = false): SideEffectHandle =
@@ -40,8 +41,15 @@ trait DirectedGraphDecorator[S <: DGState, SideEffectHandle] {
     */
   lazy val future: Future[S] = promise.future
 
+  /**
+    * We have no control over the callbacks and potentially we would like to execute a piece of code compulsorily before releasing the future (i.e. ultimately GC)
+    * In this case implement your code in finishWith which will for sure execute just before the future is released (and then before GC)
+    */
+  def finishWith(): Unit = ()
+
   onTerminalState(s =>
     Try {
+      finishWith()
       promise.success(s)
   })
 }
