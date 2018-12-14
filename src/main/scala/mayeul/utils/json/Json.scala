@@ -1,14 +1,12 @@
 package mayeul.utils.json
 
 import mayeul.utils.StringUtils
-import mayeul.utils.logging.Logging
 import org.json4s.{Formats, NoTypeHints}
 import org.json4s.jackson.Serialization
 
 import scala.util.Try
 
-class Json(formats: Formats) extends Logging {
-
+class Json(formats: Formats) {
   private implicit val fo: Formats = formats
 
   def parse[T: Manifest](input: String): T = {
@@ -16,11 +14,10 @@ class Json(formats: Formats) extends Logging {
       Serialization.read[T](input)
     } recover {
       case e: Throwable =>
-        log.warn(
+        throw new RuntimeException(
           s"Error while parsing type ${implicitly[Manifest[T]].runtimeClass.getName} with input:\n${StringUtils
             .truncateString(input)}",
           e)
-        throw e
     }
     t.get
   }
@@ -30,11 +27,10 @@ class Json(formats: Formats) extends Logging {
       Serialization.write(input)
     } recover {
       case e: Throwable =>
-        log.warn(
+        throw new RuntimeException(
           s"Error while serializing type ${implicitly[Manifest[T]].runtimeClass.getName} with input:\n${StringUtils
             .truncateString(input.toString)}",
           e)
-        throw e
     }
     t.get
   }
@@ -44,11 +40,10 @@ class Json(formats: Formats) extends Logging {
       Serialization.writePretty(input)
     } recover {
       case e: Throwable =>
-        log.warn(
+        throw new RuntimeException(
           s"Error while serializing type ${implicitly[Manifest[T]].runtimeClass.getName} with input:\n${StringUtils
             .truncateString(input.toString)}",
           e)
-        throw e
     }
     t.get
   }
