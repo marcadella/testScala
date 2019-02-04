@@ -18,6 +18,10 @@ Common parameters:
 
 To run a sh command, CMD = sh, Args = <"-c", "echo bla">
 
+To re-use the docker daemon within a container you need to bind mount
+- `/var/run/docker.sock`
+- `/usr/bin/docker`
+
 ###Management
 
 - List images: `docker images`
@@ -34,6 +38,7 @@ To run a sh command, CMD = sh, Args = <"-c", "echo bla">
 - Load an image from tar: `docker load --input hello-world.tar`
 
 ##Kubernetes
+
 Cf. https://kubernetes.io/docs/reference/kubectl/cheatsheet/
 
 
@@ -50,22 +55,27 @@ If no namespace is provided the default one is used (`default` if not modified i
 - List deployments: `kubectl get deployments`
 - List secrets: `kubectl get secrets`. ATTENTION: `[-o json/yaml]` displays the secrets!!
 - Get info about service/pod/deployment: `kubectl describe service/pod/deployment <x>`
+- Display log of pod x: `kubectl logs <x>`
+
+Equivalent of `docker run`: `kubectl ?run/create/apply? NAME --generator=run-pod/v1 --image=image [--env="key=value"] [--port=port] [--replicas=replicas] [--dry-run=bool] [--overrides=inline-json] [--command] -- [COMMAND] [args...] [options]`
 
 ## Minikube
 
-To start minikube, run `sudo minikube start`
+To start minikube, run `minikube start`
 
-Attention: Do NOT use `Ctrl+C` during start-up even if it takes some time. In case it happens, use `sudo minikube delete && sudo minikube start`
+Attention: Do NOT use `Ctrl+C` during start-up even if it takes some time. In case it happens, use `minikube delete && minikube start`
 
-To stop minikube: `sudo minikube stop`
+To delete minikube: `minikube delete`
 
 Minikube is running in a VM which runs its own instance of docker daemon and does not have access to the host's docker daemon.
-In order to get access to locally build docker images without using a docker registry, run `eval $(sudo minikube docker-env)` in a terminal on the host.
+In order to get access to locally build docker images without using a docker registry, run `eval $(minikube docker-env)` in a terminal on the host.
 Then any docker command will be executed on the VM's docker daemon. So any image built with `docker build` in this terminal will be accessible to minikube.
 
-To see the kubernetes dashboard, run `sudo minikube dashboard`, then copy-paste the URL in a browser if needed.
+To see the kubernetes dashboard, run `minikube dashboard`, then copy-paste the URL in a browser if needed.
 
 ## Argo
+
+Note: When running with minikube, cf tips above for using locally built images!
 
 In order to get access to Argo GUI: `kubectl -n argo port-forward deployment/argo-ui 8001:8001`
 The GUI is then accessible via `localhost:8001`

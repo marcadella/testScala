@@ -19,4 +19,5 @@ libraryDependencies ++= Seq(
   "net.liftweb" %% "lift-json" % "3.3.0",
   "org.scalaj" %% "scalaj-http" % "2.4.1",
   "commons-io" % "commons-io" % "2.6",
-  "com.lihaoyi" %% "scalarx" % "0.4.0")
+  "com.lihaoyi" %% "scalarx" % "0.4.0",
+  "io.minio" % "minio" % "5.0.6")
