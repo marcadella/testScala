@@ -1,3 +1,4 @@
 target
 .idea*
 .directory
+**/HelloWorld.scala
