@@ -1,6 +1,6 @@
 package mayeul.utils.logging
 
-import com.typesafe.scalalogging.slf4j.{LazyLogging, Logger}
+import com.typesafe.scalalogging.{LazyLogging, Logger}
 import org.slf4j.LoggerFactory
 
 trait Logging extends LazyLogging { //We use lazy logging so that if the logger is not called it is not instantiated
